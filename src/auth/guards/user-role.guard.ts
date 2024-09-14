@@ -2,7 +2,7 @@ import { BadRequestException, CanActivate, ExecutionContext, ForbiddenException,
 import { Reflector } from "@nestjs/core";
 import { Observable } from "rxjs";
 import { META_ROLES } from "../decorators/role-protected.decorator";
-import { User } from "@prisma/client";
+import { User, UserRole } from "@prisma/client";
 
 @Injectable()
 export class UserRoleGuard implements CanActivate {
@@ -21,10 +21,8 @@ export class UserRoleGuard implements CanActivate {
             throw new BadRequestException('User not found')
         }
 
-        for (const role of user.role) {
-            if (validRoles.includes(role)) {
-                return true
-            }
+        if (validRoles.includes(user.role)) {
+            return true
         }
 
         throw new ForbiddenException(`Forbidden: Needed role : [${validRoles}]`)
