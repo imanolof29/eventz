@@ -17,7 +17,14 @@ export class CategoriesService {
     }
 
     async getCategories(): Promise<CategoryDto[]> {
-        return await this.prisma.category.findMany()
+        const categories = await this.prisma.category.findMany()
+        return categories.map(
+            (category) => new CategoryDto({
+                id: category.id,
+                name: category.name,
+                created: category.created
+            })
+        )
     }
 
     async deleteCategory(properties: { id: string }) {

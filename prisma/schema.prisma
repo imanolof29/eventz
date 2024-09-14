@@ -37,19 +37,30 @@ model User {
 }
 
 model Category {
-  id      String   @id @default(uuid())
-  name    String   @unique
-  created DateTime @default(now())
+  id            String          @id @default(uuid())
+  name          String          @unique
+  created       DateTime        @default(now())
+  eventCategory EventCategory[]
+  eventId       String?
+}
+
+model EventCategory {
+  id         String   @id @default(uuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  eventId    String
+  event      Event    @relation(fields: [eventId], references: [id])
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  latitude    Float
-  longitude   Float
-  images      String[]
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  created     DateTime @default(now())
+  id            String          @id @default(uuid())
+  name          String
+  description   String
+  latitude      Float
+  longitude     Float
+  images        String[]
+  userId        String
+  user          User            @relation(fields: [userId], references: [id])
+  created       DateTime        @default(now())
+  eventCategory EventCategory[]
 }

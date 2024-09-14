@@ -11,7 +11,6 @@ export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) { }
 
     @Post('create')
-    @Auth(UserRole.ADMIN)
     async createCategory(@Body() dto: CreateCategoryDto): Promise<void> {
         return this.categoriesService.createCategory({ dto })
     }
