@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventDto } from './dto/event.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { User } from '@prisma/client';
+import { UpdateEventDto } from './dto/update-event.dto';
 
 @Controller('events')
 export class EventsController {
@@ -20,6 +21,16 @@ export class EventsController {
     @Get('find')
     async getEvents(): Promise<EventDto[]> {
         return this.eventsService.getEvents()
+    }
+
+    @Get('pick/:id')
+    async pickEvent(@Param('id') id: string): Promise<EventDto> {
+        return this.eventsService.getEventById({ id })
+    }
+
+    @Put('update/:id')
+    async updateEvent(@Param('id') id: string, @Body() dto: UpdateEventDto) {
+        return this.eventsService.updateEvent({ id, dto })
     }
 
     @Delete('delete/:id')
