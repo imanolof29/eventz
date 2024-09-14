@@ -11,13 +11,13 @@ export class EventsController {
 
     constructor(private readonly eventsService: EventsService) { }
 
-    @Get('find')
+    @Post('create')
     @Auth()
     async createEvent(@Body() dto: CreateEventDto, @GetUser() user: User): Promise<void> {
         return this.eventsService.createEvent({ dto, userId: user.id })
     }
 
-    @Post('create')
+    @Get('find')
     async getEvents(): Promise<EventDto[]> {
         return this.eventsService.getEvents()
     }
