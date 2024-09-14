@@ -14,6 +14,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "database:devbase": "ts-node-dev -r tsconfig-paths/register ./scripts/base.database.ts",
+    "database:delete": "ts-node-dev -r tsconfig-paths/register ./scripts/delete.database.ts",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
