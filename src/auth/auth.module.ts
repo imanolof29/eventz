@@ -9,7 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
   providers: [AuthService, PrismaService],
   imports: [
     JwtModule.register({
-      secret: '',
+      secret: 'hfdhjcbvhcvyuevieboevuoibnwquwtfytfcolwelmcneiuguevbiceu',
       signOptions: { expiresIn: '2d' },
     }),
   ]
