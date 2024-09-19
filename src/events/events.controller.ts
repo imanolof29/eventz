@@ -6,7 +6,9 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { User } from '@prisma/client';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('events')
 @Controller('events')
 export class EventsController {
 
