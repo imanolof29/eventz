@@ -4,12 +4,14 @@ import { PrismaService } from 'src/prisma.service';
 import { passwordHash } from 'src/utils/password.utility';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
 
     constructor(
         private prisma: PrismaService,
+        private configService: ConfigService,
         private jwtService: JwtService
     ) { }
 
@@ -50,7 +52,9 @@ export class AuthService {
 
         const token = this.jwtService.sign(payload)
 
-        return { accessToken: token, email: userFound.email }
+        const refresh = this.jwtService.sign(payload, { secret: this.configService.get('REFRESH_SECRET'), expiresIn: '30d' },)
+
+        return { accessToken: token, refreshToken: refresh, email: userFound.email }
 
     }
 
