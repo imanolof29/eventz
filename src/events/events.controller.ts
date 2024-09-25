@@ -6,7 +6,7 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { User } from '@prisma/client';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('events')
 @Controller('events')
@@ -15,6 +15,11 @@ export class EventsController {
     constructor(private readonly eventsService: EventsService) { }
 
     @Post('create')
+    @ApiOperation({ summary: 'Create new event' })
+    @ApiBody({ type: CreateEventDto })
+    @ApiResponse({ status: 201, description: 'Event created' })
+    @ApiResponse({ status: 401, description: 'Not authenticated' })
+    @ApiResponse({ status: 403, description: 'Not permission' })
     @Auth()
     async createEvent(@Body() dto: CreateEventDto, @GetUser() user: User): Promise<void> {
         return this.eventsService.createEvent({ dto, userId: user.id })
