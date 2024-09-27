@@ -4,6 +4,7 @@ import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -27,6 +28,7 @@ export class UsersController {
     }
 
     @Put('update/:id')
+    @Auth()
     async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto): Promise<void> {
         return this.usersService.updateUser({ id, dto })
     }
