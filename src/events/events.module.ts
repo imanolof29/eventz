@@ -6,7 +6,7 @@ import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [EventsController],
-  providers: [EventsService, PrismaService],
+  providers: [EventsService],
   imports: [AuthModule]
 })
 export class EventsModule { }

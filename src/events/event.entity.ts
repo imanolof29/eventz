@@ -31,12 +31,9 @@ export class Event {
     user: User
 
     @Column({
-        type: 'datetime',
+        type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP'
     })
     created: Date
-
-    @Column()
-    images: string[]
 
 }

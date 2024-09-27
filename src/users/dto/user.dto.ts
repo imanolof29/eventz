@@ -4,7 +4,6 @@ export class UserDto {
     lastName: string
     username: string
     email: string
-    role: string
     created: Date
 
     constructor(properties: {
@@ -13,7 +12,6 @@ export class UserDto {
         lastName: string
         username: string
         email: string
-        role: string
         created: Date
     }) {
         this.id = properties.id
@@ -21,7 +19,6 @@ export class UserDto {
         this.lastName = properties.lastName
         this.username = properties.username
         this.email = properties.email
-        this.role = properties.role
         this.created = properties.created
     }
 
