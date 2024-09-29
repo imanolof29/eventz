@@ -4,45 +4,67 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './event.entity';
-import { Repository } from 'typeorm';
+import { In, Point, Repository } from 'typeorm';
+import { Category } from 'src/categories/category.entity';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class EventsService {
 
     constructor(
-        @InjectRepository(Event) private eventRepository: Repository<Event>
+        @InjectRepository(Event) private eventRepository: Repository<Event>,
+        @InjectRepository(Category) private categoryRepository: Repository<Category>,
+        @InjectRepository(User) private userRepository: Repository<User>
     ) { }
 
     async getEvents(): Promise<EventDto[]> {
-        return this.eventRepository.find().then((events) => events.map((event) => new EventDto({
+        const events = await this.eventRepository.find()
+        return events.map((event) => new EventDto({
             id: event.id,
             name: event.name,
             description: event.description,
             userId: event.user.id,
             created: event.created
-        })))
+        }))
     }
 
     async createEvent(properties: { dto: CreateEventDto, userId: string }) {
-        /*await this.prisma.event.create({
-            data: {
-                name: properties.dto.name,
-                description: properties.dto.description,
-                images: properties.dto.images,
-                latitude: properties.dto.latitude,
-                longitude: properties.dto.longitude,
-                userId: properties.userId,
-                eventCategory: {
-                    create: properties.dto.categoryIds.map(id => ({
-                        category: {
-                            connect: {
-                                id
-                            }
-                        }
-                    }))
-                }
-            }
-        })*/
+        const categories = await this.categoryRepository.find({ where: { id: In(properties.dto.categoryIds) } })
+        const user = await this.userRepository.findOneBy({ id: properties.userId })
+        const position: Point = {
+            type: 'Point',
+            coordinates: [properties.dto.latitude, properties.dto.longitude]
+        };
+        const newEvent = await this.eventRepository.create({
+            name: properties.dto.name,
+            description: properties.dto.description,
+            position,
+            user,
+            categories,
+        })
+
+        await this.eventRepository.save(newEvent)
+        /*try {
+            await this.eventRepository.query(`
+                INSERT INTO
+                    events(
+                        name,
+                        description,
+                        position,
+                        categories,
+                        userId,
+                    )
+                VALUES(
+                    ${properties.dto.name},
+                    ${properties.dto.description},
+                    ST_GeomFromText('POINT(${properties.dto.latitude} ${properties.dto.longitude})', 4326),
+                    ${properties.dto.categoryIds},
+                    ${properties.userId}
+                )
+            `)
+        } catch (e) {
+            console.log(e)
+        }*/
     }
 
     async getEventById(properties: { id: string }) {

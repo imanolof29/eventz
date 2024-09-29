@@ -1,5 +1,6 @@
+import { Event } from 'src/events/event.entity'
 import { passwordHash } from 'src/utils/password.utility'
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity({ name: 'users' })
 export class User {
@@ -27,6 +28,9 @@ export class User {
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created: Date;
+
+    @OneToMany(() => Event, (event) => event.user)
+    events: Event[]
 
     @BeforeInsert()
     async hashPassword() {

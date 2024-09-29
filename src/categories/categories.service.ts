@@ -1,24 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CategoryDto } from './dto/category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Category } from './category.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CategoriesService {
 
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        @InjectRepository(Category) private categoryRepository: Repository<Category>
+    ) { }
 
     async createCategory(properties: { dto: CreateCategoryDto }) {
-        await this.prisma.category.create({
-            data: {
-                name: properties.dto.name
-            }
+        const newCategory = await this.categoryRepository.create({
+            name: properties.dto.name
         })
+        await this.categoryRepository.save(newCategory)
     }
 
     async getCategories(): Promise<CategoryDto[]> {
-        const categories = await this.prisma.category.findMany()
+        const categories = await this.categoryRepository.find()
         return categories.map(
             (category) => new CategoryDto({
                 id: category.id,
@@ -29,10 +33,8 @@ export class CategoriesService {
     }
 
     async getCategoryById(properties: { id: string }): Promise<CategoryDto> {
-        const category = await this.prisma.category.findUnique({
-            where: {
-                id: properties.id
-            }
+        const category = await this.categoryRepository.findOneBy({
+            id: properties.id
         })
         if (!category) {
             console.log("NOT FOUND")
@@ -45,22 +47,18 @@ export class CategoriesService {
     }
 
     async deleteCategory(properties: { id: string }) {
-        return await this.prisma.category.delete({
-            where: {
-                id: properties.id
-            }
+        await this.categoryRepository.delete({
+            id: properties.id
         })
     }
 
     async updateCategory(properties: { id: string; dto: UpdateCategoryDto }) {
-        return await this.prisma.category.update({
-            where: {
-                id: properties.id
-            },
-            data: {
-                name: properties.dto.name
-            }
-        })
+        const category = await this.categoryRepository.findOneBy({ id: properties.id })
+        if (!category) {
+            throw new HttpException('Category not found', HttpStatus.NOT_FOUND)
+        }
+        const updatedCategory = Object.assign(category, properties.dto)
+        return this.categoryRepository.save(updatedCategory)
     }
 
 }
