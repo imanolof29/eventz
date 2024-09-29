@@ -4,9 +4,9 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { EventDto } from './dto/event.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { User } from '@prisma/client';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from 'src/users/user.entity';
 
 @ApiTags('events')
 @Controller('events')

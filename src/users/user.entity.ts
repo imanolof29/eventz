@@ -2,6 +2,11 @@ import { Event } from 'src/events/event.entity'
 import { passwordHash } from 'src/utils/password.utility'
 import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
+export enum UserRole {
+    ADMIN = 'ADMIN',
+    USER = 'USER'
+}
+
 @Entity({ name: 'users' })
 export class User {
 
@@ -25,6 +30,13 @@ export class User {
 
     @Column()
     password: string
+
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.USER
+    })
+    role: UserRole
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created: Date;

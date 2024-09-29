@@ -3,9 +3,10 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CategoryDto } from './dto/category.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { UserRole } from '@prisma/client';
+
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserRole } from 'src/users/user.entity';
 
 @ApiTags('categories')
 @Controller('categories')

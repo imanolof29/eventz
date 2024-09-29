@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client"
+import { UserRole } from "../user.entity"
 
 export class CreateUserDto {
     firstName: string
