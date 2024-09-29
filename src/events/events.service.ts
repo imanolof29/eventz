@@ -18,7 +18,9 @@ export class EventsService {
     ) { }
 
     async getEvents(): Promise<EventDto[]> {
-        const events = await this.eventRepository.find()
+        const events = await this.eventRepository.find({
+            relations: ['user']
+        })
         return events.map((event) => new EventDto({
             id: event.id,
             name: event.name,
@@ -26,6 +28,24 @@ export class EventsService {
             userId: event.user.id,
             created: event.created
         }))
+    }
+
+    async getNearbyEvents(properties: { radius: number; latitude: number; longitude: number }) {
+        const events = await this.eventRepository
+            .createQueryBuilder('events')
+            .where(
+                `ST_DWithin(
+                events.position,
+                ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326),
+                :radius
+            )`,
+                {
+                    latitude: properties.latitude,
+                    longitude: properties.longitude,
+                    radius: properties.radius,
+                }
+            )
+            .getMany();
     }
 
     async createEvent(properties: { dto: CreateEventDto, userId: string }) {
