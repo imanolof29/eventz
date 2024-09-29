@@ -3,11 +3,16 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from "../interfaces/jwt-payload.interface";
-import { PrismaService } from "src/prisma.service";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "src/users/user.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
-    constructor(private prisma: PrismaService, configService: ConfigService) {
+    constructor(
+        configService: ConfigService,
+        @InjectRepository(User) private userRepository: Repository<User>
+    ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
@@ -17,11 +22,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
 
     async validate(payload: JwtPayload) {
         const { id } = payload
-        const user = await this.prisma.user.findUnique({
-            where: {
-                id
-            }
-        })
+        const user = await this.userRepository.findOneBy({ id })
         if (!user) {
             throw new UnauthorizedException('Refresh token not valid')
         }

@@ -2,7 +2,7 @@ import { BadRequestException, CanActivate, ExecutionContext, ForbiddenException,
 import { Reflector } from "@nestjs/core";
 import { Observable } from "rxjs";
 import { META_ROLES } from "../decorators/role-protected.decorator";
-import { User, UserRole } from "@prisma/client";
+import { User, UserRole } from "src/users/user.entity";
 
 @Injectable()
 export class UserRoleGuard implements CanActivate {

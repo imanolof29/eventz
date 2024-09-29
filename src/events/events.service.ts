@@ -1,56 +1,94 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { EventDto } from './dto/event.dto';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Event } from './event.entity';
+import { In, Point, Repository } from 'typeorm';
+import { Category } from 'src/categories/category.entity';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class EventsService {
 
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        @InjectRepository(Event) private eventRepository: Repository<Event>,
+        @InjectRepository(Category) private categoryRepository: Repository<Category>,
+        @InjectRepository(User) private userRepository: Repository<User>
+    ) { }
 
     async getEvents(): Promise<EventDto[]> {
-        const events = await this.prisma.event.findMany()
+        const events = await this.eventRepository.find({
+            relations: ['user']
+        })
         return events.map((event) => new EventDto({
             id: event.id,
             name: event.name,
             description: event.description,
-            latitude: event.latitude,
-            longitude: event.longitude,
-            images: event.images,
-            userId: event.userId,
+            userId: event.user.id,
             created: event.created
         }))
     }
 
-    async createEvent(properties: { dto: CreateEventDto, userId: string }) {
-        await this.prisma.event.create({
-            data: {
-                name: properties.dto.name,
-                description: properties.dto.description,
-                images: properties.dto.images,
-                latitude: properties.dto.latitude,
-                longitude: properties.dto.longitude,
-                userId: properties.userId,
-                eventCategory: {
-                    create: properties.dto.categoryIds.map(id => ({
-                        category: {
-                            connect: {
-                                id
-                            }
-                        }
-                    }))
+    async getNearbyEvents(properties: { radius: number; latitude: number; longitude: number }) {
+        const events = await this.eventRepository
+            .createQueryBuilder('events')
+            .where(
+                `ST_DWithin(
+                events.position,
+                ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326),
+                :radius
+            )`,
+                {
+                    latitude: properties.latitude,
+                    longitude: properties.longitude,
+                    radius: properties.radius,
                 }
-            }
+            )
+            .getMany();
+    }
+
+    async createEvent(properties: { dto: CreateEventDto, userId: string }) {
+        const categories = await this.categoryRepository.find({ where: { id: In(properties.dto.categoryIds) } })
+        const user = await this.userRepository.findOneBy({ id: properties.userId })
+        const position: Point = {
+            type: 'Point',
+            coordinates: [properties.dto.latitude, properties.dto.longitude]
+        };
+        const newEvent = await this.eventRepository.create({
+            name: properties.dto.name,
+            description: properties.dto.description,
+            position,
+            user,
+            categories,
         })
+
+        await this.eventRepository.save(newEvent)
+        /*try {
+            await this.eventRepository.query(`
+                INSERT INTO
+                    events(
+                        name,
+                        description,
+                        position,
+                        categories,
+                        userId,
+                    )
+                VALUES(
+                    ${properties.dto.name},
+                    ${properties.dto.description},
+                    ST_GeomFromText('POINT(${properties.dto.latitude} ${properties.dto.longitude})', 4326),
+                    ${properties.dto.categoryIds},
+                    ${properties.userId}
+                )
+            `)
+        } catch (e) {
+            console.log(e)
+        }*/
     }
 
     async getEventById(properties: { id: string }) {
-        const event = await this.prisma.event.findUnique({
-            where: {
-                id: properties.id
-            }
-        })
+        const event = await this.eventRepository.findOneBy({ id: properties.id })
 
         if (!event) {
             throw new NotFoundException('Event not found')
@@ -59,42 +97,33 @@ export class EventsService {
         return new EventDto({
             id: event.id,
             name: event.name,
-            description: event.name,
-            latitude: event.latitude,
-            longitude: event.longitude,
-            images: event.images,
-            userId: event.userId,
+            description: event.description,
+            userId: event.user.id,
             created: event.created
         })
 
     }
 
     async updateEvent(properties: { id: string; dto: UpdateEventDto }) {
-        await this.prisma.event.update({
-            where: {
-                id: properties.id
-            },
-            data: {
-                name: properties.dto.name,
-                description: properties.dto.description,
-                latitude: properties.dto.latitude,
-                longitude: properties.dto.longitude,
-                images: properties.dto.images
-            }
-        })
+        const event = await this.eventRepository.findOneBy({ id: properties.id })
+
+        if (!event) {
+            throw new NotFoundException('Event not found')
+        }
+
+        const updateEvent = Object.assign(event, properties.dto)
+
+        await this.eventRepository.save(updateEvent)
     }
 
     async deleteEvent(properties: { id: string }) {
-        await this.prisma.eventCategory.deleteMany({
-            where: {
-                eventId: properties.id
-            }
-        })
-        await this.prisma.event.delete({
-            where: {
-                id: properties.id
-            }
-        })
+        const event = await this.eventRepository.findOneBy({ id: properties.id })
+
+        if (!event) {
+            throw new NotFoundException('Event not found')
+        }
+
+        await this.eventRepository.delete(event)
     }
 
 }

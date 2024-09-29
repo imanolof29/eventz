@@ -1,12 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseFloatPipe, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventDto } from './dto/event.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { User } from '@prisma/client';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from 'src/users/user.entity';
 
 @ApiTags('events')
 @Controller('events')
@@ -28,6 +28,15 @@ export class EventsController {
     @Get('find')
     async getEvents(): Promise<EventDto[]> {
         return this.eventsService.getEvents()
+    }
+
+    @Get('findNearby')
+    async getNearbyEvents(
+        @Query('latitude', ParseFloatPipe) latitude: number,
+        @Query('longitude', ParseFloatPipe) longitude: number,
+        @Query('radius', ParseIntPipe) radius: number
+    ): Promise<void> {
+        return this.eventsService.getNearbyEvents({ radius, latitude, longitude })
     }
 
     @Get('pick/:id')

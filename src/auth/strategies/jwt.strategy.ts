@@ -1,18 +1,18 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
-import { User } from "@prisma/client";
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from "../interfaces/jwt-payload.interface";
-import { PrismaService } from "src/prisma.service";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User } from "src/users/user.entity";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 
     constructor(
         configService: ConfigService,
-        //TODO: Replace with user service
-        private prisma: PrismaService
+        @InjectRepository(User) private userRepository: Repository<User>
     ) {
         super({
             secretOrKey: configService.get('JWT_SECRET'),
@@ -23,11 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     async validate(payload: JwtPayload): Promise<User> {
         const { id } = payload
 
-        const user = await this.prisma.user.findUnique({
-            where: {
-                id
-            }
-        })
+        const user = await this.userRepository.findOneBy({ id })
 
         if (!user) {
             throw new UnauthorizedException('Token not valid')

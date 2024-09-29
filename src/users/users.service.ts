@@ -1,48 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { passwordHash } from 'src/utils/password.utility';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
 
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        @InjectRepository(User) private userRepository: Repository<User>
+    ) { }
 
     async getUsers(): Promise<UserDto[]> {
-        const users = await this.prisma.user.findMany()
-        return users.map((user) => new UserDto({
+        return this.userRepository.find().then((users) => users.map((user) => new UserDto({
             id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
-            username: user.username,
             email: user.email,
-            role: user.role,
+            username: user.username,
             created: user.created
-        }))
+        })))
     }
 
     async createUser(properties: { dto: CreateUserDto }): Promise<void> {
-        const hashedPassword = await passwordHash.cryptPassword(properties.dto.password)
-        await this.prisma.user.create({
-            data: {
-                firstName: properties.dto.firstName,
-                lastName: properties.dto.lastName,
-                email: properties.dto.email,
-                username: properties.dto.username,
-                role: properties.dto.role,
-                password: hashedPassword,
-            }
-        })
+        const createdUser = await this.userRepository.create(properties.dto)
+        await this.userRepository.save(createdUser)
     }
 
     async getUserById(properties: { id: string }): Promise<UserDto> {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                id: properties.id
-            },
-        })
+        const user = await this.userRepository.findOneBy({ id: properties.id })
 
         if (!user) {
             throw new NotFoundException('User not found')
@@ -54,22 +42,19 @@ export class UsersService {
             lastName: user.lastName,
             email: user.email,
             username: user.username,
-            role: user.role,
             created: user.created
         })
     }
 
     async updateUser(properties: { id: string; dto: UpdateUserDto }): Promise<void> {
-        await this.prisma.user.update({
-            where: {
-                id: properties.id
-            },
-            data: {
-                firstName: properties.dto.firstName,
-                lastName: properties.dto.lastName,
-                username: properties.dto.username
-            }
-        })
+        const userFound = await this.userRepository.findOneBy({ id: properties.id })
+        if (!userFound) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+        }
+
+        const updatedUser = Object.assign(userFound, properties.dto)
+
+        await this.userRepository.save(updatedUser)
     }
 
 }
