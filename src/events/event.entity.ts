@@ -1,7 +1,8 @@
 import { Category } from "src/categories/category.entity";
 import { User } from "src/users/user.entity";
+import { Comment } from "src/comment/comment.entity";
 import { Point } from 'geojson';
-import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'events' })
 export class Event {
@@ -31,10 +32,22 @@ export class Event {
     @ManyToOne(() => User, user => user.events)
     user: User
 
+    @Column({ nullable: true })
+    images: string[]
+
+    @Column({ nullable: true })
+    startDate?: Date
+
+    @Column({ nullable: true })
+    endDate?: Date
+
     @Column({
         type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP'
     })
     created: Date
+
+    @OneToMany(() => Comment, (comment) => comment.event)
+    comments: Comment[]
 
 }

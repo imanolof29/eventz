@@ -1,4 +1,5 @@
 import { Event } from 'src/events/event.entity'
+import { Comment } from 'src/comment/comment.entity'
 import { passwordHash } from 'src/utils/password.utility'
 import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
@@ -43,6 +44,9 @@ export class User {
 
     @OneToMany(() => Event, (event) => event.user)
     events: Event[]
+
+    @OneToMany(() => Comment, (comment) => comment.user)
+    comments: Comment[]
 
     @BeforeInsert()
     async hashPassword() {

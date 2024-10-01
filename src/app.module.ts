@@ -6,6 +6,9 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommentController } from './comment/comment.controller';
+import { CommentService } from './comment/comment.service';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     CategoriesModule,
     UsersModule,
     NotificationsModule,
+    CommentModule,
   ],
+  controllers: [CommentController],
+  providers: [CommentService],
 })
 export class AppModule { }
