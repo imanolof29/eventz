@@ -8,13 +8,13 @@ import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, OneToMany, Pri
 export class Event {
 
     @PrimaryGeneratedColumn('uuid')
-    id: string
+    id: string;
 
     @Column()
-    name: string
+    name: string;
 
     @Column()
-    description: string
+    description: string;
 
     @Index({ spatial: true })
     @Column({
@@ -23,31 +23,31 @@ export class Event {
         srid: 4326,
         nullable: false
     })
-    position: Point
+    position: Point;
 
     @ManyToMany(() => Category)
     @JoinTable()
-    categories: Category[]
+    categories: Category[];
 
     @ManyToOne(() => User, user => user.events)
-    user: User
+    user: User;
 
     @Column({ nullable: true })
-    images: string[]
+    image: string;
 
     @Column({ nullable: true })
-    startDate?: Date
+    startDate?: Date;
 
     @Column({ nullable: true })
-    endDate?: Date
+    endDate?: Date;
 
     @Column({
         type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP'
     })
-    created: Date
+    created: Date;
 
     @OneToMany(() => Comment, (comment) => comment.event)
-    comments: Comment[]
+    comments: Comment[];
 
 }

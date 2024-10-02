@@ -6,15 +6,15 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 export class Comment {
 
     @PrimaryGeneratedColumn('uuid')
-    id: string
+    id: string;
 
     @Column()
-    content: string
+    content: string;
 
     @ManyToOne(() => User, (user) => user.comments)
-    user: User
+    user: User;
 
     @ManyToOne(() => Event, (event) => event.comments)
-    event: Event
+    event: Event;
 
 }
