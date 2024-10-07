@@ -1,8 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { GoogleOauthGuard } from './guards/google-oauth.guard';
+import { Response } from 'express';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -24,6 +26,16 @@ export class AuthController {
     })
     async login(@Body() dto: LoginAuthDto): Promise<{ accessToken: string; email: string }> {
         return this.authService.login({ dto })
+    }
+
+    @Get('google')
+    @UseGuards(GoogleOauthGuard)
+    async googleAuth() { }
+
+    @Get('google/callback')
+    @UseGuards(GoogleOauthGuard)
+    async googleAuthCallback(@Req() req, @Res() res: Response) {
+        return res.status(HttpStatus.OK)
     }
 
 }
