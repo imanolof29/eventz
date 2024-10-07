@@ -26,7 +26,8 @@ export class EventsService {
             name: event.name,
             description: event.description,
             userId: event.user.id,
-            created: event.created
+            created: event.created,
+            position: event.position
         }))
     }
 
@@ -88,7 +89,11 @@ export class EventsService {
     }
 
     async getEventById(properties: { id: string }) {
-        const event = await this.eventRepository.findOneBy({ id: properties.id })
+        const event = await this.eventRepository.findOne({
+            where: {
+                id: properties.id
+            }, relations: ['user']
+        })
 
         if (!event) {
             throw new NotFoundException('Event not found')
@@ -99,7 +104,8 @@ export class EventsService {
             name: event.name,
             description: event.description,
             userId: event.user.id,
-            created: event.created
+            created: event.created,
+            position: event.position
         })
 
     }
