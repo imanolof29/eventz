@@ -30,11 +30,13 @@ export class AuthController {
 
     @Get('google')
     @UseGuards(GoogleOauthGuard)
-    async googleAuth() { }
+    async googleAuth() {
+    }
 
     @Get('google/callback')
     @UseGuards(GoogleOauthGuard)
     async googleAuthCallback(@Req() req, @Res() res: Response) {
+        console.log(req)
         return res.status(HttpStatus.OK)
     }
 
