@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { passwordHash } from 'src/utils/password.utility';
 import { LoginAuthDto } from './dto/login-auth.dto';
@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -46,6 +47,18 @@ export class AuthService {
 
         return { accessToken: token, refreshToken: refresh, email: userFound.email }
 
+    }
+
+    async refreshToken(properties: { userId: string }): Promise<AuthResponseDto> {
+        const user = await this.userRepository.findOneBy({ id: properties.userId })
+        if (!user) throw new UnauthorizedException('User not found')
+        const payload = {
+            id: user.id,
+            name: user.firstName
+        }
+        const token = this.jwtService.sign(payload)
+        const refresh = this.jwtService.sign(payload, { secret: this.configService.get('REFRESH_SECRET'), expiresIn: '30d' })
+        return { accessToken: token, refreshToken: refresh, email: user.email }
     }
 
 

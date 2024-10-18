@@ -18,9 +18,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             callbackURL: configService.get('CALLBACK_URL'),
             scope: ['profile', 'email']
         })
-        console.log("CLIENT ID ", configService.get('GOOGLE_CLIENT_ID'))
-        console.log("CLIENT SECRET ", configService.get('CLIENT_SECRET'))
-        console.log("CALLBACK URL ", configService.get('CALLBACK_URL'))
     }
 
     async validate(

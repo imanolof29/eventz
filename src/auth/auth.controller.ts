@@ -5,6 +5,9 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { Response } from 'express';
+import { RefreshJwtGuard } from './guards/refresh-auth.guard';
+import { User } from 'src/users/user.entity';
+import { GetUser } from './decorators/get-user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -36,8 +39,13 @@ export class AuthController {
     @Get('google/callback')
     @UseGuards(GoogleOauthGuard)
     async googleAuthCallback(@Req() req, @Res() res: Response) {
-        console.log(req)
         return res.status(HttpStatus.OK)
+    }
+
+    @UseGuards(RefreshJwtGuard)
+    @Post('refresh')
+    async refreshToken(@GetUser() user: User) {
+        return this.authService.refreshToken({ userId: user.id })
     }
 
 }
