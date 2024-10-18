@@ -29,11 +29,13 @@ export class EventsController {
     @ApiOperation({ summary: 'Get events' })
     @ApiResponse({ status: 200, description: 'Get event list' })
     @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth()
     async getEvents(): Promise<EventDto[]> {
         return this.eventsService.getEvents()
     }
 
     @Get('findNearby')
+    @Auth()
     async getNearbyEvents(
         @Query('latitude', ParseFloatPipe) latitude: number,
         @Query('longitude', ParseFloatPipe) longitude: number,
@@ -48,6 +50,7 @@ export class EventsController {
     @ApiResponse({ status: 200, description: 'Event detail' })
     @ApiResponse({ status: 404, description: 'Event not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth()
     async pickEvent(@Param('id') id: string): Promise<EventDto> {
         return this.eventsService.getEventById({ id })
     }
@@ -60,6 +63,7 @@ export class EventsController {
     @ApiResponse({ status: 403, description: 'Not permission' })
     @ApiResponse({ status: 404, description: 'Event not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth()
     async updateEvent(@Param('id') id: string, @Body() dto: UpdateEventDto) {
         return this.eventsService.updateEvent({ id, dto })
     }
@@ -72,6 +76,7 @@ export class EventsController {
     @ApiResponse({ status: 403, description: 'Not permission' })
     @ApiResponse({ status: 404, description: 'Event not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth()
     async deleteEvent(@Param('id') id: string) {
         return this.eventsService.deleteEvent({ id })
     }

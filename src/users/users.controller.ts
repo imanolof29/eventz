@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
+import { UserRole } from './user.entity';
 
 @ApiTags('users')
 @Controller('users')
@@ -16,6 +17,7 @@ export class UsersController {
     @ApiOperation({ summary: 'Get users' })
     @ApiResponse({ status: 200, description: 'Get user list' })
     @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth()
     async getUsers(): Promise<UserDto[]> {
         return this.usersService.getUsers()
     }
@@ -25,6 +27,7 @@ export class UsersController {
     @ApiResponse({ status: 201, description: 'User created' })
     @ApiResponse({ status: 400, description: 'Invalid request' })
     @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth(UserRole.ADMIN)
     async createUser(@Body() dto: CreateUserDto): Promise<void> {
         return this.usersService.createUser({ dto })
     }
@@ -35,6 +38,7 @@ export class UsersController {
     @ApiResponse({ status: 200, description: 'User detail' })
     @ApiResponse({ status: 404, description: 'User not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth()
     async pickUser(@Param('id') id: string): Promise<UserDto> {
         return this.usersService.getUserById({ id })
     }
