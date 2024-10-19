@@ -30,7 +30,7 @@ import { CommentModule } from './comment/comment.module';
     NotificationsModule,
     CommentModule,
   ],
-  controllers: [CommentController],
-  providers: [CommentService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule { }

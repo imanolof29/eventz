@@ -8,7 +8,7 @@ import { Repository } from "typeorm";
 import { User } from "src/users/user.entity";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     constructor(
         configService: ConfigService,
