@@ -27,7 +27,10 @@ export class EventsService {
             description: event.description,
             userId: event.user.id,
             created: event.created,
-            position: event.position
+            position: event.position,
+            price: event.price,
+            ticketLimit: event.ticketLimit,
+            ticketsSold: event.ticketsSold
         }))
     }
 
@@ -62,6 +65,9 @@ export class EventsService {
             position,
             user,
             categories,
+            price: properties.dto.price,
+            ticketLimit: properties.dto.ticketLimit,
+            ticketsSold: properties.dto.ticketsSold
         })
 
         await this.eventRepository.save(newEvent)
@@ -105,7 +111,10 @@ export class EventsService {
             description: event.description,
             userId: event.user.id,
             created: event.created,
-            position: event.position
+            position: event.position,
+            price: event.price,
+            ticketLimit: event.ticketLimit,
+            ticketsSold: event.ticketsSold
         })
 
     }

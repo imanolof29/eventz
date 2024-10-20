@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsNotEmpty, IsNumber, IsString, IsUUID } from "class-validator"
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from "class-validator"
 
 export class CreateEventDto {
 
@@ -33,5 +33,17 @@ export class CreateEventDto {
         description: 'Event category ids'
     })
     categoryIds: string[]
+
+    @IsNumber()
+    @IsOptional()
+    price: number
+
+    @IsNumber()
+    @IsOptional()
+    ticketLimit: number
+
+    @IsNumber()
+    @IsOptional()
+    ticketsSold: number
 
 }

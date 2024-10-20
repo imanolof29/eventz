@@ -5,6 +5,7 @@ import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 
 
 export enum UserRole {
     ADMIN = 'ADMIN',
+    ORGANIZER = 'ORGANIZER',
     USER = 'USER'
 }
 

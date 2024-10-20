@@ -17,6 +17,15 @@ export class EventDto {
     @ApiProperty({ example: new Date(), description: 'Event created at' })
     created: Date
 
+    @ApiProperty({ example: 9.99, description: 'Event price' })
+    price?: number
+
+    @ApiProperty({ example: 300, description: 'Ticket limit' })
+    ticketLimit?: number
+
+    @ApiProperty({ example: 150, description: 'Tickets sold' })
+    ticketsSold: number
+
     @ApiProperty({
         example: {
             type: 'Point',
@@ -36,6 +45,9 @@ export class EventDto {
         userId: string
         created: Date
         position: string
+        price?: number
+        ticketLimit?: number
+        ticketsSold: number
     }) {
         this.id = properties.id
         this.name = properties.name
@@ -43,6 +55,9 @@ export class EventDto {
         this.userId = properties.userId
         this.created = properties.created
         this.position = properties.position
+        this.price = properties.price
+        this.ticketLimit = properties.ticketLimit
+        this.ticketsSold = properties.ticketsSold
     }
 
 }

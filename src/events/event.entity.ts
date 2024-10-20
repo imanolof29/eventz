@@ -50,4 +50,13 @@ export class Event {
     @OneToMany(() => Comment, (comment) => comment.event)
     comments: Comment[];
 
+    @Column({ nullable: true })
+    price: number
+
+    @Column({ nullable: true })
+    ticketLimit: number
+
+    @Column({ default: 0 })
+    ticketsSold: number
+
 }
