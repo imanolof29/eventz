@@ -2,6 +2,7 @@ import { Event } from 'src/events/event.entity'
 import { Comment } from 'src/comment/comment.entity'
 import { passwordHash } from 'src/utils/password.utility'
 import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Purchase } from 'src/purchases/purchase.entity'
 
 export enum UserRole {
     ADMIN = 'ADMIN',
@@ -48,6 +49,9 @@ export class User {
 
     @OneToMany(() => Comment, (comment) => comment.user)
     comments: Comment[]
+
+    @OneToMany(() => Purchase, (purchase) => purchase.buyer)
+    purchases: Purchase[]
 
     @BeforeInsert()
     async hashPassword() {

@@ -3,6 +3,7 @@ import { User } from "src/users/user.entity";
 import { Comment } from "src/comment/comment.entity";
 import { Point } from 'geojson';
 import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Purchase } from "src/purchases/purchase.entity";
 
 @Entity({ name: 'events' })
 export class Event {
@@ -58,5 +59,8 @@ export class Event {
 
     @Column({ default: 0 })
     ticketsSold: number
+
+    @OneToMany(() => Purchase, (purchase) => purchase.event)
+    purchases: Purchase[]
 
 }
