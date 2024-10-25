@@ -7,6 +7,7 @@ import { Auth } from 'src/modules/auth/decorators/auth.decorator';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/modules/users/user.entity';
+import { OptionalIntPipe } from 'src/pipes/optional-int.pipe';
 
 @ApiTags('events')
 @Controller('events')
@@ -30,8 +31,11 @@ export class EventsController {
     @ApiResponse({ status: 200, description: 'Get event list' })
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
-    async getEvents(): Promise<EventDto[]> {
-        return this.eventsService.getEvents()
+    async getEvents(
+        @Query('skip', OptionalIntPipe) skip?: number,
+        @Query('take', OptionalIntPipe) take?: number
+    ): Promise<EventDto[]> {
+        return this.eventsService.getEvents({ skip, take })
     }
 
     @Get('findNearby')

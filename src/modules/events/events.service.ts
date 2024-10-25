@@ -17,9 +17,11 @@ export class EventsService {
         @InjectRepository(User) private userRepository: Repository<User>
     ) { }
 
-    async getEvents(): Promise<EventDto[]> {
+    async getEvents(properties: { skip?: number, take?: number }): Promise<EventDto[]> {
         const events = await this.eventRepository.find({
-            relations: ['user']
+            relations: ['user'],
+            skip: properties.skip,
+            take: properties.take
         })
         return events.map((event) => new EventDto({
             id: event.id,
