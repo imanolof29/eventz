@@ -12,6 +12,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { S3Module } from './providers/s3/s3.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
     NotificationsModule,
     CommentModule,
     PurchasesModule,
+    S3Module
   ],
   controllers: [],
   providers: [
