@@ -7,6 +7,7 @@ import { Event } from './event.entity';
 import { In, Point, Repository } from 'typeorm';
 import { Category } from 'src/modules/categories/category.entity';
 import { User } from 'src/modules/users/user.entity';
+import { EVENT_NOT_FOUND } from 'src/errors/errors.constants';
 
 @Injectable()
 export class EventsService {
@@ -104,7 +105,7 @@ export class EventsService {
         })
 
         if (!event) {
-            throw new NotFoundException('Event not found')
+            throw new NotFoundException(EVENT_NOT_FOUND)
         }
 
         return new EventDto({
@@ -125,7 +126,7 @@ export class EventsService {
         const event = await this.eventRepository.findOneBy({ id: properties.id })
 
         if (!event) {
-            throw new NotFoundException('Event not found')
+            throw new NotFoundException(EVENT_NOT_FOUND)
         }
 
         const updateEvent = Object.assign(event, properties.dto)
@@ -137,7 +138,7 @@ export class EventsService {
         const event = await this.eventRepository.findOneBy({ id: properties.id })
 
         if (!event) {
-            throw new NotFoundException('Event not found')
+            throw new NotFoundException(EVENT_NOT_FOUND)
         }
 
         await this.eventRepository.delete(event)
