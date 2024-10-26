@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { EventsModule } from './events/events.module';
-import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { EventsModule } from './modules/events/events.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
-import { NotificationsModule } from './notifications/notifications.module';
+import { UsersModule } from './modules/users/users.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CommentController } from './comment/comment.controller';
-import { CommentService } from './comment/comment.service';
-import { CommentModule } from './comment/comment.module';
+import { CommentController } from './modules/comment/comment.controller';
+import { CommentService } from './modules/comment/comment.service';
+import { CommentModule } from './modules/comment/comment.module';
+import { PurchasesModule } from './modules/purchases/purchases.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -29,8 +32,14 @@ import { CommentModule } from './comment/comment.module';
     UsersModule,
     NotificationsModule,
     CommentModule,
+    PurchasesModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter
+    }
+  ],
 })
 export class AppModule { }
