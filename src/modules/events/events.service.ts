@@ -141,7 +141,7 @@ export class EventsService {
             throw new NotFoundException(EVENT_NOT_FOUND)
         }
 
-        await this.eventRepository.delete(event)
+        return await this.eventRepository.remove(event)
     }
 
 }
