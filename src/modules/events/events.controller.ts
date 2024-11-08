@@ -8,6 +8,8 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/modules/users/user.entity';
 import { OptionalIntPipe } from 'src/pipes/optional-int.pipe';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 
 @ApiTags('events')
 @Controller('events')
@@ -32,10 +34,9 @@ export class EventsController {
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
     async getEvents(
-        @Query('skip', OptionalIntPipe) skip?: number,
-        @Query('take', OptionalIntPipe) take?: number
-    ): Promise<EventDto[]> {
-        return this.eventsService.getEvents({ skip, take })
+        @Query() paginationDto: PaginationDto
+    ): Promise<PaginationResponseDto<EventDto>> {
+        return this.eventsService.getEvents(paginationDto)
     }
 
     @Get('findNearby')

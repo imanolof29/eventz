@@ -13,6 +13,7 @@ import { PurchasesModule } from './modules/purchases/purchases.module';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { S3Module } from './providers/s3/s3.module';
+import { CommonModule } from './modules/common/common.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { S3Module } from './providers/s3/s3.module';
     NotificationsModule,
     CommentModule,
     PurchasesModule,
+    CommonModule,
     S3Module
   ],
   controllers: [],

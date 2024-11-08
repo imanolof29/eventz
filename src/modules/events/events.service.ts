@@ -8,6 +8,8 @@ import { In, Point, Repository } from 'typeorm';
 import { Category } from 'src/modules/categories/category.entity';
 import { User } from 'src/modules/users/user.entity';
 import { EVENT_NOT_FOUND } from 'src/errors/errors.constants';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 
 @Injectable()
 export class EventsService {
@@ -18,13 +20,24 @@ export class EventsService {
         @InjectRepository(User) private userRepository: Repository<User>
     ) { }
 
-    async getEvents(properties: { skip?: number, take?: number }): Promise<EventDto[]> {
-        const events = await this.eventRepository.find({
+    async getEvents(pagination: PaginationDto): Promise<PaginationResponseDto<EventDto>> {
+
+        // Asignar valores predeterminados de paginación
+        const limit = pagination.limit ?? 10;
+        const page = pagination.page ?? 0;
+
+        // Obtener eventos y total de registros usando paginación
+        const [events, total] = await this.eventRepository.findAndCount({
             relations: ['user'],
-            skip: properties.skip,
-            take: properties.take
-        })
-        return events.map((event) => new EventDto({
+            skip: limit * page,
+            take: limit
+        });
+
+        // Calcular el número total de páginas
+        const totalPages = Math.ceil(total / limit);
+
+        // Mapear los eventos a DTOs
+        const eventsDto = events.map((event) => new EventDto({
             id: event.id,
             name: event.name,
             description: event.description,
@@ -34,7 +47,15 @@ export class EventsService {
             price: event.price,
             ticketLimit: event.ticketLimit,
             ticketsSold: event.ticketsSold
-        }))
+        }));
+
+        return {
+            data: eventsDto,
+            total,
+            page: Math.floor(page / limit) + 1,
+            limit,
+            totalPages
+        };
     }
 
     async getNearbyEvents(properties: { radius: number; latitude: number; longitude: number }) {
