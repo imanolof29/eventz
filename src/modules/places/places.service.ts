@@ -17,7 +17,7 @@ export class PlacesService {
     async getPlaces(pagination: PaginationDto): Promise<PaginationResponseDto<PlaceDto>> {
         //Asignar valores predeterminados de paginación
         const limit = pagination.limit ?? 10
-        const page = pagination.page ?? 10
+        const page = pagination.page ?? 0
 
         //Obtener eventos y total de registros usando paginación
         const [places, total] = await this.placeRepository.findAndCount({
@@ -93,6 +93,9 @@ export class PlacesService {
         const data = JSON.parse(file.buffer.toString())
         const elements = data.elements
         elements.forEach(async (element: any) => {
+            //Si no tiene tags viene vacio por lo que no tiene info
+            if (!element.tags) return
+
             const osmId = element.id.toString();
             const name = element.tags.name as string;
             const description = element.tags.description as string;
@@ -109,6 +112,9 @@ export class PlacesService {
             const facebook = element.tags['contact:facebook'] as string;
             const instagram = element.tags['contact:instagram'] as string;
             const phone = element.tags.phone as string;
+
+            //Si no tiene nombre next
+            if (!name) return
 
             const newPlace = await this.placeRepository.create({
                 name,
