@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PlacesService } from './places.service';
 import { Auth } from '../auth/decorators/auth.decorator';
@@ -26,7 +26,19 @@ export class PlacesController {
         return this.placesService.getPlaces(paginationDto)
     }
 
+    @Get('pick/:id')
+    @ApiOperation({ summary: 'Get place detail' })
+    @ApiResponse({ status: 200, description: 'Get place detail' })
+    @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth()
+    async pickPlace(@Param('id') id: string): Promise<PlaceDto> {
+        return this.placesService.getPlaceById({ id })
+    }
+
     @Post('import-data')
+    @ApiOperation({ summary: 'Import data from .json file' })
+    @ApiResponse({ status: 200, description: 'Import Ok' })
+    @ApiResponse({ status: 500, description: 'Server error' })
     @UseInterceptors(FileInterceptor('file'))
     @Auth(UserRole.ADMIN)
     async importData(

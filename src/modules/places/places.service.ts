@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Place } from './place.entity';
 import { Point, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PlaceDto } from './dto/place.dto';
+import { PLACE_NOT_FOUND } from 'src/errors/errors.constants';
 
 @Injectable()
 export class PlacesService {
@@ -52,6 +53,36 @@ export class PlacesService {
             limit,
             totalPages
         }
+    }
+
+    async getPlaceById(properties: { id: string }) {
+        const place = await this.placeRepository.findOne({
+            where: {
+                id: properties.id
+            }
+        })
+
+        if (!place) {
+            throw new NotFoundException(PLACE_NOT_FOUND)
+        }
+
+        return new PlaceDto({
+            id: place.id,
+            name: place.name,
+            description: place.description,
+            position: place.position,
+            city: place.city,
+            street: place.street,
+            postcode: place.postcode,
+            housenumber: place.housenumber,
+            website: place.website,
+            instagram: place.instagram,
+            email: place.email,
+            facebook: place.facebook,
+            phone: place.phone,
+            osmId: place.osmId
+        })
+
     }
 
     async deleteAllData(): Promise<void> {
