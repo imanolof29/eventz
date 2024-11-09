@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PlacesService } from './places.service';
 import { Auth } from '../auth/decorators/auth.decorator';
@@ -32,7 +32,16 @@ export class PlacesController {
     async importData(
         @UploadedFile() file: Express.Multer.File
     ) {
-        return this.placesService.importData(file)
+        return await this.placesService.importData(file)
+    }
+
+    @Delete('delete-data')
+    @ApiOperation({ summary: 'Delete all data' })
+    @ApiResponse({ status: 200, description: 'Delete all data' })
+    @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth(UserRole.ADMIN)
+    async deleteData() {
+        return await this.placesService.deleteAllData()
     }
 
 }

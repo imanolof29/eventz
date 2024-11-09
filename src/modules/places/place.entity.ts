@@ -37,6 +37,9 @@ export class Place {
     website: string
 
     @Column({ nullable: true })
+    email: string
+
+    @Column({ nullable: true })
     facebook: string
 
     @Column({ nullable: true })
