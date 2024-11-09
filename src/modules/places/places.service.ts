@@ -41,7 +41,8 @@ export class PlacesService {
             limit,
             totalPages
         }
-
     }
+
+    async importData(file: Express.Multer.File): Promise<void> { }
 
 }

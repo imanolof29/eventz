@@ -1,10 +1,13 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PlacesService } from './places.service';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PlaceDto } from './dto/place.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UserRole } from '../users/user.entity';
+
 
 @ApiTags('places')
 @Controller('places')
@@ -21,6 +24,15 @@ export class PlacesController {
         @Query() paginationDto: PaginationDto
     ): Promise<PaginationResponseDto<PlaceDto>> {
         return this.placesService.getPlaces(paginationDto)
+    }
+
+    @Post('import-data')
+    @UseInterceptors(FileInterceptor('file'))
+    @Auth(UserRole.ADMIN)
+    async importData(
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        return this.placesService.importData(file)
     }
 
 }
