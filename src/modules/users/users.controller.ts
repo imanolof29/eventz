@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -6,6 +6,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/modules/auth/decorators/auth.decorator';
 import { UserRole } from './user.entity';
+import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -18,8 +20,10 @@ export class UsersController {
     @ApiResponse({ status: 200, description: 'Get user list' })
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
-    async getUsers(): Promise<UserDto[]> {
-        return this.usersService.getUsers()
+    async getUsers(
+        @Query() paginationDto: PaginationDto
+    ): Promise<PaginationResponseDto<UserDto>> {
+        return this.usersService.getUsers(paginationDto)
     }
 
     @Post('create')

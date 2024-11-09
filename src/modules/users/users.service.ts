@@ -5,6 +5,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 
 @Injectable()
 export class UsersService {
@@ -13,15 +15,40 @@ export class UsersService {
         @InjectRepository(User) private userRepository: Repository<User>
     ) { }
 
-    async getUsers(): Promise<UserDto[]> {
-        return this.userRepository.find().then((users) => users.map((user) => new UserDto({
+    async getUsers(pagination: PaginationDto): Promise<PaginationResponseDto<UserDto>> {
+        //Asignar valores predeterminados de paginación
+        const limit = pagination.limit ?? 10
+        const page = pagination.page ?? 0
+
+        //Obtener usuarios y total de registros usando paginación
+        const [users, total] = await this.userRepository.findAndCount({
+            skip: limit * page,
+            take: limit,
+            order: {
+                "created": 'desc'
+            }
+        })
+
+        // Calcular el número total de paginas
+        const totalPages = Math.ceil(total / limit)
+
+        const usersDto = users.map((user) => new UserDto({
             id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
             username: user.username,
             created: user.created
-        })))
+        }))
+
+        return {
+            data: usersDto,
+            total,
+            page: Math.floor(page / limit) + 1,
+            limit,
+            totalPages
+        }
+
     }
 
     async createUser(properties: { dto: CreateUserDto }): Promise<void> {

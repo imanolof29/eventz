@@ -8,7 +8,6 @@ import { Repository } from 'typeorm';
 import { CATEGORY_NOT_FOUND } from 'src/errors/errors.constants';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { skip } from 'node:test';
 
 @Injectable()
 export class CategoriesService {
