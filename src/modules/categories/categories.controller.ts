@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CategoryDto } from './dto/category.dto';
@@ -7,6 +7,8 @@ import { Auth } from 'src/modules/auth/decorators/auth.decorator';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from 'src/modules/users/user.entity';
+import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -27,8 +29,10 @@ export class CategoriesController {
     @ApiOperation({ summary: 'Get category list' })
     @ApiResponse({ status: 200, description: 'Category list' })
     @Auth()
-    async getCategories(): Promise<CategoryDto[]> {
-        return this.categoriesService.getCategories()
+    async getCategories(
+        @Query() paginationDto: PaginationDto
+    ): Promise<PaginationResponseDto<CategoryDto>> {
+        return this.categoriesService.getCategories(paginationDto)
     }
 
     @Get('pick/:id')

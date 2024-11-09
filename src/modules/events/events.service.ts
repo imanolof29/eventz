@@ -29,6 +29,9 @@ export class EventsService {
         // Obtener eventos y total de registros usando paginación
         const [events, total] = await this.eventRepository.findAndCount({
             relations: ['user'],
+            order: {
+                "created": 'desc'
+            },
             skip: limit * page,
             take: limit
         });
