@@ -15,6 +15,7 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { S3Module } from './providers/s3/s3.module';
 import { CommonModule } from './modules/common/common.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { PlacesModule } from './modules/places/places.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
     CommentModule,
     PurchasesModule,
     CommonModule,
-    S3Module
+    S3Module,
+    PlacesModule
   ],
   controllers: [],
   providers: [

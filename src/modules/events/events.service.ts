@@ -98,27 +98,6 @@ export class EventsService {
         })
 
         await this.eventRepository.save(newEvent)
-        /*try {
-            await this.eventRepository.query(`
-                INSERT INTO
-                    events(
-                        name,
-                        description,
-                        position,
-                        categories,
-                        userId,
-                    )
-                VALUES(
-                    ${properties.dto.name},
-                    ${properties.dto.description},
-                    ST_GeomFromText('POINT(${properties.dto.latitude} ${properties.dto.longitude})', 4326),
-                    ${properties.dto.categoryIds},
-                    ${properties.userId}
-                )
-            `)
-        } catch (e) {
-            console.log(e)
-        }*/
     }
 
     async getEventById(properties: { id: string }) {
