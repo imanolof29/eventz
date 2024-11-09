@@ -55,6 +55,29 @@ export class PlacesService {
         }
     }
 
+    async getPlacesNearPosition(properties: { lat: number, lon: number, radius: number }) {
+        // Convertir el radio de metros a grados (aproximadamente 1 grado = 111,000 metros)
+        const radiusInDegrees = properties.radius / 111000;
+        return await this.placeRepository
+            .createQueryBuilder('places')
+            .where(
+                `
+                ST_DWithin (
+                    places.position,
+                    ST_SetSRID(
+                        ST_MakePoint(
+                            ${properties.lat}, 
+                            ${properties.lon}
+                        ), 
+                    4326
+                ),
+                ${radiusInDegrees}
+                )
+                `,
+            )
+            .getMany()
+    }
+
     async getPlaceById(properties: { id: string }) {
         const place = await this.placeRepository.findOne({
             where: {
@@ -99,6 +122,7 @@ export class PlacesService {
             const osmId = element.id.toString();
             const name = element.tags.name as string;
             const description = element.tags.description as string;
+            //Convertimos a un point compatible con BBDD
             const position: Point = {
                 type: 'Point',
                 coordinates: [element.lat, element.lon]

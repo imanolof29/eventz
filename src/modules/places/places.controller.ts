@@ -26,6 +26,15 @@ export class PlacesController {
         return this.placesService.getPlaces(paginationDto)
     }
 
+    @Get('nearby')
+    async getPlacesNearPosition(
+        @Query('lat') lat: number,
+        @Query('lon') lon: number,
+        @Query('radius') radius: number
+    ) {
+        return this.placesService.getPlacesNearPosition({ lat, lon, radius })
+    }
+
     @Get('pick/:id')
     @ApiOperation({ summary: 'Get place detail' })
     @ApiResponse({ status: 200, description: 'Get place detail' })
