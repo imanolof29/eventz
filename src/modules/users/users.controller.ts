@@ -1,13 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/modules/auth/decorators/auth.decorator';
-import { UserRole } from './user.entity';
+import { User, UserRole } from './user.entity';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -57,6 +59,20 @@ export class UsersController {
     @Auth()
     async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto): Promise<void> {
         return this.usersService.updateUser({ id, dto })
+    }
+
+    @Post('profile-picture')
+    @UseInterceptors(FileInterceptor('files'))
+    async uploadProfilePicture(
+        @UploadedFiles(
+            new ParseFilePipe({
+                validators: [new MaxFileSizeValidator({ maxSize: 10000000 })],
+            }),
+        )
+        file: Express.Multer.File,
+        @GetUser() user: User
+    ) {
+        return await this.usersService.uploadProfileImage(file, user.id)
     }
 
 }

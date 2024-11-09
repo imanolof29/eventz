@@ -7,12 +7,15 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { USER_NOT_FOUND } from 'src/errors/errors.constants';
+import { S3Service } from 'src/providers/s3/s3.service';
 
 @Injectable()
 export class UsersService {
 
     constructor(
-        @InjectRepository(User) private userRepository: Repository<User>
+        @InjectRepository(User) private userRepository: Repository<User>,
+        private readonly s3Service: S3Service
     ) { }
 
     async getUsers(pagination: PaginationDto): Promise<PaginationResponseDto<UserDto>> {
@@ -60,7 +63,7 @@ export class UsersService {
         const user = await this.userRepository.findOneBy({ id: properties.id })
 
         if (!user) {
-            throw new NotFoundException('User not found')
+            throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
         }
         return new UserDto({
             id: user.id,
@@ -75,12 +78,28 @@ export class UsersService {
     async updateUser(properties: { id: string; dto: UpdateUserDto }): Promise<void> {
         const userFound = await this.userRepository.findOneBy({ id: properties.id })
         if (!userFound) {
-            throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+            throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
         }
 
         const updatedUser = Object.assign(userFound, properties.dto)
 
         await this.userRepository.save(updatedUser)
+    }
+
+    async uploadProfileImage(
+        file: Express.Multer.File,
+        userId: string,
+    ): Promise<void> {
+        const [images] = await this.s3Service.upload([file], userId)
+        await this.userRepository.update(
+            {
+                id: userId
+            },
+            {
+                profileImage: images
+            }
+        )
+
     }
 
 }
