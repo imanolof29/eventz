@@ -9,12 +9,14 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { USER_NOT_FOUND } from 'src/errors/errors.constants';
 import { S3Service } from 'src/providers/s3/s3.service';
+import { DeviceToken } from './deviceToken.entity';
 
 @Injectable()
 export class UsersService {
 
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
+        @InjectRepository(DeviceToken) private tokenRepository: Repository<DeviceToken>,
         private readonly s3Service: S3Service
     ) { }
 
@@ -84,6 +86,18 @@ export class UsersService {
         const updatedUser = Object.assign(userFound, properties.dto)
 
         await this.userRepository.save(updatedUser)
+    }
+
+    async registerDeviceToken(properties: { token: string, id: string }): Promise<void> {
+        const userFound = await this.userRepository.findOneBy({ id: properties.id })
+        if (!userFound) {
+            throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+        }
+        const tokenFound = await this.tokenRepository.findOne({ where: { token: properties.token } })
+        if (!tokenFound) {
+            const newToken = await this.tokenRepository.create({ token: properties.token, user: userFound })
+            await this.tokenRepository.save(newToken)
+        }
     }
 
     async uploadProfileImage(

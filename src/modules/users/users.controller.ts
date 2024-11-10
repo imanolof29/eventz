@@ -10,6 +10,7 @@ import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUser } from '../auth/decorators/get-user.decorator';
+import { RegisterTokenDto } from './dto/register-token.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -73,6 +74,14 @@ export class UsersController {
         @GetUser() user: User
     ) {
         return await this.usersService.uploadProfileImage(file, user.id)
+    }
+
+    @Post('register-token')
+    @Auth()
+    async registerToken(
+        @GetUser() user: User, @Body() dto: RegisterTokenDto
+    ): Promise<void> {
+        return await this.usersService.registerDeviceToken({ token: dto.token, id: user.id })
     }
 
 }

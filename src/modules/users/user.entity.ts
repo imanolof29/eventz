@@ -3,6 +3,7 @@ import { Comment } from 'src/modules/comment/comment.entity'
 import { passwordHash } from 'src/utils/password.utility'
 import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Purchase } from 'src/modules/purchases/purchase.entity'
+import { DeviceToken } from './deviceToken.entity'
 
 export enum UserRole {
     ADMIN = 'ADMIN',
@@ -52,6 +53,9 @@ export class User {
 
     @OneToMany(() => Purchase, (purchase) => purchase.buyer)
     purchases: Purchase[]
+
+    @OneToMany(() => DeviceToken, token => token.user, { cascade: true })
+    tokens: DeviceToken[]
 
     @BeforeInsert()
     async hashPassword() {
