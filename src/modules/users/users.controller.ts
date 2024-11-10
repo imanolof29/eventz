@@ -63,7 +63,10 @@ export class UsersController {
     }
 
     @Post('profile-picture')
+    @ApiOperation({ summary: 'Upload user profile image' })
+    @ApiResponse({ status: 200, description: 'User image uploaded' })
     @UseInterceptors(FileInterceptor('files'))
+    @Auth()
     async uploadProfilePicture(
         @UploadedFiles(
             new ParseFilePipe({
@@ -77,6 +80,9 @@ export class UsersController {
     }
 
     @Post('register-token')
+    @ApiOperation({ summary: 'Register device token' })
+    @ApiResponse({ status: 200, description: 'Device token registered' })
+    @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
     async registerToken(
         @GetUser() user: User, @Body() dto: RegisterTokenDto
