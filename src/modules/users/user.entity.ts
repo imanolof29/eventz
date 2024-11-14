@@ -32,7 +32,7 @@ export class User {
     @Column({ nullable: true })
     profileImage: string
 
-    @Column()
+    @Column({ nullable: true })
     password: string
 
     @Column({
@@ -59,6 +59,7 @@ export class User {
 
     @BeforeInsert()
     async hashPassword() {
+        if (!this.password) return
         this.password = await passwordHash.cryptPassword(this.password)
     }
 

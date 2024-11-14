@@ -35,15 +35,12 @@ export class AuthController {
         return this.authService.login({ dto })
     }
 
-    @Get('google')
-    @UseGuards(GoogleOauthGuard)
-    async googleAuth() {
-    }
-
-    @Get('google/callback')
-    @UseGuards(GoogleOauthGuard)
-    async googleAuthCallback(@Req() req, @Res() res: Response) {
-        return res.status(HttpStatus.OK)
+    @Post('google')
+    @ApiOperation({ summary: 'Login with google' })
+    @ApiResponse({ status: 201, description: 'Google login OK' })
+    @ApiResponse({ status: 500, description: 'Internal server error' })
+    async googleAuth(@Body('idToken') idToken: string) {
+        return this.authService.validateGoogleToken(idToken)
     }
 
     @UseGuards(RefreshJwtGuard)
