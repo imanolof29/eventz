@@ -4,5 +4,7 @@ export const COMMENT_NOT_FOUND = 'Comment not found'
 export const EVENT_NOT_FOUND = 'Event not found'
 export const TICKET_NOT_FOUND = 'Ticket not found'
 export const PLACE_NOT_FOUND = 'Place not found'
+export const EMAIL_DOES_NOT_EXIST = 'Email does not exist'
+export const INCORRECT_PASSWORD = 'Incorrect password'
 
 export const OPTIONAL_INT_PIPE_NUMBER = '$key should be a number';
