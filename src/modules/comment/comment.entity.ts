@@ -17,4 +17,10 @@ export class Comment {
     @ManyToOne(() => Place, (place) => place.comments)
     place: Place
 
+    @Column({
+        type: 'timestamp',
+        default: () => 'CURRENT_TIMESTAMP'
+    })
+    created: Date
+
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CommentService } from './comment.service';
 import { CommentDto } from './dto/comment.dto';
@@ -6,6 +6,8 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { GetUser } from 'src/modules/auth/decorators/get-user.decorator';
 import { User } from 'src/modules/users/user.entity';
 import { Auth } from 'src/modules/auth/decorators/auth.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 
 //TODO: Darle una vuelta al planteamiento de los params y body
 
@@ -20,8 +22,11 @@ export class CommentController {
     @ApiResponse({ status: 200, description: 'Get comments' })
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
-    async getEventComments(@Param('id') id: string): Promise<CommentDto[]> {
-        return this.commentService.getEventComments({ id })
+    async getEventComments(
+        @Param('id') id: string,
+        @Query() paginationDto: PaginationDto
+    ): Promise<PaginationResponseDto<CommentDto>> {
+        return this.commentService.getEventComments(paginationDto, id)
     }
 
     @Post('create')

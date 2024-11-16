@@ -1,10 +1,16 @@
-export class CommentDto {
-    content: string
-    userId: string
+import { UserDto } from "src/modules/users/dto/user.dto"
 
-    constructor(properties: { content: string, userId: string }) {
+export class CommentDto {
+    id: string
+    content: string
+    user: UserDto
+    created: Date
+
+    constructor(properties: { id: string, content: string, user: UserDto, created: Date }) {
+        this.id = properties.id
         this.content = properties.content
-        this.userId = properties.userId
+        this.user = properties.user
+        this.created = properties.created
     }
 
 }
