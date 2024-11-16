@@ -6,6 +6,7 @@ import { CommentDto } from './dto/comment.dto';
 import { Comment } from './comment.entity';
 import { Event } from 'src/modules/events/event.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { Place } from '../places/place.entity';
 
 @Injectable()
 export class CommentService {
@@ -13,7 +14,7 @@ export class CommentService {
     constructor(
         @InjectRepository(Comment) private commentRepository: Repository<Comment>,
         @InjectRepository(User) private userRepository: Repository<User>,
-        @InjectRepository(Event) private eventRepository: Repository<Event>
+        @InjectRepository(Place) private placeRepository: Repository<Event>
     ) { }
 
     async getEventComments(properties: { id: string }): Promise<CommentDto[]> {
@@ -31,20 +32,20 @@ export class CommentService {
 
     async createComment(properties: { dto: CreateCommentDto, userId: string }): Promise<void> {
         const user = await this.userRepository.findOneBy({ id: properties.userId })
-        const event = await this.commentRepository.findOneBy({ id: properties.dto.eventId })
+        const place = await this.commentRepository.findOneBy({ id: properties.dto.placeId })
         const newComment = await this.commentRepository.create({
             user,
-            event,
+            place,
             content: properties.dto.content
         })
         await this.commentRepository.save(newComment)
     }
 
-    async deleteComment(properties: { commentId: string, eventId: string }): Promise<void> {
-        const event = await this.eventRepository.findOneBy({ id: properties.eventId })
+    async deleteComment(properties: { commentId: string, placeId: string }): Promise<void> {
+        const place = await this.placeRepository.findOneBy({ id: properties.placeId })
         const comment = await this.commentRepository.findOneBy({
             id: properties.commentId,
-            event
+            place
         })
         await this.commentRepository.delete(comment)
     }

@@ -48,9 +48,6 @@ export class Event {
     })
     created: Date;
 
-    @OneToMany(() => Comment, (comment) => comment.event)
-    comments: Comment[];
-
     @Column({ nullable: true })
     price: number
 

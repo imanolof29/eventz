@@ -43,7 +43,7 @@ export class CommentController {
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
     async deleteComment(@Body() commentId: string, @Param('id') id: string): Promise<void> {
-        return this.commentService.deleteComment({ commentId, eventId: id })
+        return this.commentService.deleteComment({ commentId, placeId: id })
     }
 
 

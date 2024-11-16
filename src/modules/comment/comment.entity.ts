@@ -1,6 +1,6 @@
 import { User } from "src/modules/users/user.entity";
-import { Event } from "src/modules/events/event.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Place } from "../places/place.entity";
 
 @Entity({ name: 'comments' })
 export class Comment {
@@ -14,7 +14,7 @@ export class Comment {
     @ManyToOne(() => User, (user) => user.comments)
     user: User;
 
-    @ManyToOne(() => Event, (event) => event.comments)
-    event: Event;
+    @ManyToOne(() => Place, (place) => place.comments)
+    place: Place
 
 }

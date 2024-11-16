@@ -1,4 +1,4 @@
 export class CreateCommentDto {
-    eventId: string
+    placeId: string
     content: string
 }

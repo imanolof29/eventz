@@ -1,4 +1,5 @@
-import { Column, Entity, Index, Point, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, OneToMany, Point, PrimaryGeneratedColumn } from "typeorm";
+import { Comment } from "../comment/comment.entity";
 
 @Entity({ name: 'places' })
 export class Place {
@@ -11,6 +12,9 @@ export class Place {
 
     @Column({ nullable: true })
     description: string
+
+    @OneToMany(() => Comment, (comment) => comment.place)
+    comments: Comment[];
 
     @Index({ spatial: true })
     @Column({
