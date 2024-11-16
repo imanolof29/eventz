@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Query, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -65,15 +65,14 @@ export class UsersController {
     @Post('profile-picture')
     @ApiOperation({ summary: 'Upload user profile image' })
     @ApiResponse({ status: 200, description: 'User image uploaded' })
-    @UseInterceptors(FileInterceptor('files'))
+    @UseInterceptors(FileInterceptor('file'))
     @Auth()
     async uploadProfilePicture(
-        @UploadedFiles(
+        @UploadedFile(
             new ParseFilePipe({
                 validators: [new MaxFileSizeValidator({ maxSize: 10000000 })],
             }),
-        )
-        file: Express.Multer.File,
+        ) file: Express.Multer.File,
         @GetUser() user: User
     ) {
         return await this.usersService.uploadProfileImage(file, user.id)
