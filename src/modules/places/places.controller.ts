@@ -30,9 +30,10 @@ export class PlacesController {
     async getPlacesNearPosition(
         @Query('lat') lat: number,
         @Query('lon') lon: number,
-        @Query('radius') radius: number
+        @Query('radius') radius: number,
+        @Query() paginationDto: PaginationDto
     ) {
-        return this.placesService.getPlacesNearPosition({ lat, lon, radius })
+        return this.placesService.getPlacesNearPosition({ lat, lon, radius, pagination: paginationDto })
     }
 
     @Get('pick/:id')

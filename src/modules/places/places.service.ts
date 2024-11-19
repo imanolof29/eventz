@@ -55,10 +55,15 @@ export class PlacesService {
         }
     }
 
-    async getPlacesNearPosition(properties: { lat: number, lon: number, radius: number }) {
-        // Convertir el radio de metros a grados (aproximadamente 1 grado = 111,000 metros)
+    async getPlacesNearPosition(properties: { lat: number, lon: number, radius: number, pagination: PaginationDto }) {
         const radiusInDegrees = properties.radius / 111000;
-        return await this.placeRepository
+
+        // Valores predeterminados de paginación
+        const limit = properties.pagination.limit ?? 10;
+        const page = properties.pagination.page ?? 0;
+
+        // Construir la consulta con paginación y filtros espaciales
+        const [places, total] = await this.placeRepository
             .createQueryBuilder('places')
             .where(
                 `
@@ -75,7 +80,41 @@ export class PlacesService {
                 )
                 `,
             )
-            .getMany()
+            .skip(limit * page) // Paginación: saltar los registros ya cubiertos
+            .take(limit) // Paginación: limitar los registros por página
+            .getManyAndCount(); // Obtener tanto los registros como el total
+
+        // Calcular el número total de páginas
+        const totalPages = Math.ceil(total / limit);
+
+        // Mapear los resultados a PlaceDto
+        const placesDto = places.map(
+            (place) =>
+                new PlaceDto({
+                    id: place.id,
+                    name: place.name,
+                    description: place.description,
+                    position: place.position,
+                    city: place.city,
+                    street: place.street,
+                    postcode: place.postcode,
+                    housenumber: place.housenumber,
+                    website: place.website,
+                    instagram: place.instagram,
+                    email: place.email,
+                    facebook: place.facebook,
+                    phone: place.phone,
+                    osmId: place.osmId,
+                })
+        );
+
+        return {
+            data: placesDto,
+            total,
+            page,
+            limit,
+            totalPages,
+        };
     }
 
     async getPlaceById(properties: { id: string }) {
