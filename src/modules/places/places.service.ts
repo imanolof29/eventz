@@ -6,14 +6,12 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PlaceDto } from './dto/place.dto';
 import { PLACE_NOT_FOUND } from 'src/errors/errors.constants';
-import { EmailService } from 'src/providers/email/email.service';
 
 @Injectable()
 export class PlacesService {
 
     constructor(
         @InjectRepository(Place) private placeRepository: Repository<Place>,
-        private readonly emailService: EmailService
     ) { }
 
     async getPlaces(pagination: PaginationDto): Promise<PaginationResponseDto<PlaceDto>> {
@@ -47,8 +45,6 @@ export class PlacesService {
             phone: place.phone,
             osmId: place.osmId
         }))
-
-        await this.emailService.sendEmail("imanolof29@gmail.com", "Imanol")
 
         return {
             data: placesDto,
