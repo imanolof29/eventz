@@ -2,12 +2,10 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { EventsModule } from './modules/events/events.module';
 import { CategoriesModule } from './modules/categories/categories.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CommentController } from './modules/comment/comment.controller';
-import { CommentService } from './modules/comment/comment.service';
 import { CommentModule } from './modules/comment/comment.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
 import { APP_FILTER } from '@nestjs/core';
@@ -16,6 +14,10 @@ import { S3Module } from './providers/s3/s3.module';
 import { CommonModule } from './modules/common/common.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { PlacesModule } from './modules/places/places.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { join } from 'path';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+
 
 @Module({
   imports: [
@@ -30,6 +32,27 @@ import { PlacesModule } from './modules/places/places.module';
       synchronize: true
     }),
     ConfigModule.forRoot(),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (config: ConfigService) => ({
+        transport: {
+          host: config.get<string>("MAIL_HOST"),
+          secure: false,
+          auth: {
+            user: config.get('MAIL_USERNAME'),
+            pass: config.get<string>('MAIL_PASSWORD')
+          }
+        },
+        template: {
+          dir: join('./src/templates'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true
+          }
+        }
+      }),
+      inject: [ConfigService]
+    }),
     AuthModule,
     EventsModule,
     CategoriesModule,

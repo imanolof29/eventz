@@ -48,13 +48,7 @@ export class PlacesService {
             osmId: place.osmId
         }))
 
-        await this.emailService.sendEmail({
-            from: { name: 'Antonio', address: 'a@gmail.com' },
-            recipients: [{ name: 'Imanol Ortiz', address: 'imanolof29@gmail.com' }],
-            subject: 'Mailer',
-            html: `<h1>Enviando mail...</h1>`,
-            name: 'Imanol Ortiz',
-        })
+        await this.emailService.sendEmail("imanolof29@gmail.com", "Imanol")
 
         return {
             data: placesDto,
