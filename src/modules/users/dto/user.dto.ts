@@ -3,6 +3,7 @@ export class UserDto {
     firstName: string
     lastName: string
     username: string
+    profile?: string
     email: string
     created: Date
 
@@ -11,6 +12,7 @@ export class UserDto {
         firstName: string
         lastName: string
         username: string
+        profile?: string
         email: string
         created: Date
     }) {
@@ -19,6 +21,7 @@ export class UserDto {
         this.lastName = properties.lastName
         this.username = properties.username
         this.email = properties.email
+        this.profile = properties.profile
         this.created = properties.created
     }
 

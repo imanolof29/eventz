@@ -43,6 +43,7 @@ export class UsersService {
             lastName: user.lastName,
             email: user.email,
             username: user.username,
+            profile: user.profileImage,
             created: user.created
         }))
 

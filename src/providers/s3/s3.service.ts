@@ -5,13 +5,21 @@ import * as sharp from 'sharp';
 
 @Injectable()
 export class S3Service {
+
+    private bucketName: string
+
+    private region: string
+
     private readonly s3Client = new S3Client({
         region: this.configService.getOrThrow('AWS_S3_REGION'),
     });
 
     constructor(
         private readonly configService: ConfigService
-    ) { }
+    ) {
+        this.bucketName = this.configService.getOrThrow('AWS_S3_BUCKET_NAME')
+        this.region = this.configService.getOrThrow('AWS_S3_REGION')
+    }
 
     convert = require('heic-convert');
 
@@ -57,13 +65,12 @@ export class S3Service {
 
             await this.s3Client.send(
                 new PutObjectCommand({
-                    Bucket: 'find-image-uploads',
+                    Bucket: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
                     Key: s3ImageKey,
                     Body: processedImage,
                 }),
             );
-            //CAMBIAR URL A MI PROPIO BUCKET
-            const s3Uri = `https://.s3.amazonaws.com/${s3ImageKey}`;
+            const s3Uri = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${s3ImageKey}`;
             uploadedUris.push(s3Uri);
         }
 
