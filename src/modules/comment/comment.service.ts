@@ -20,7 +20,7 @@ export class CommentService {
         @InjectRepository(Place) private placeRepository: Repository<Event>
     ) { }
 
-    async getEventComments(
+    async getPlaceComments(
         pagination: PaginationDto,
         id: string
     ): Promise<PaginationResponseDto<CommentDto>> {
@@ -33,6 +33,9 @@ export class CommentService {
         const [comments, total] = await this.commentRepository.findAndCount({
             skip: limit * page,
             take: limit,
+            order: {
+                created: 'DESC'
+            },
             where: {
                 place: {
                     id

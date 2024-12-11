@@ -22,11 +22,11 @@ export class CommentController {
     @ApiResponse({ status: 200, description: 'Get comments' })
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
-    async getEventComments(
+    async getPlaceComments(
         @Param('id') id: string,
         @Query() paginationDto: PaginationDto
     ): Promise<PaginationResponseDto<CommentDto>> {
-        return this.commentService.getEventComments(paginationDto, id)
+        return this.commentService.getPlaceComments(paginationDto, id)
     }
 
     @Post('create')
