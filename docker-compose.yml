@@ -1,14 +1,37 @@
-version: '3'
+version: '3.8'
 
 services:
-  nestjs_api:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - '3000:3000'
+  db:
+    image: postgres:latest
+    container_name: fiestas
     environment:
-      - PORT=3000
-      - NODE_ENV=development
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES: fiestas_db
+    ports:
+      - "5432:5432"
     volumes:
-      - ./src:/usr/src/app
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fiesta_network
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: fiesta_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAUL_PASSWORD: admin
+    ports:
+      - "3000:8080"
+    depends_on:
+      - db
+    networks:
+      - fiesta_network
+    restart: unless-stopped
+  
+  networks:
+    fiesta_network:
+  
+  volumes:
+    postgres_data
