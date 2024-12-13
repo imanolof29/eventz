@@ -37,15 +37,26 @@ export class UsersService {
         // Calcular el número total de paginas
         const totalPages = Math.ceil(total / limit)
 
-        const usersDto = users.map((user) => new UserDto({
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            username: user.username,
-            profile: user.profileImage,
-            created: user.created
-        }))
+        const usersDto = await Promise.all(
+            users.map(async (user) => {
+                const profileImageKey = user.profileImage;
+                let profileImageUrl: string | null = null;
+
+                if (profileImageKey) {
+                    profileImageUrl = await this.s3Service.getPresignedUrl(profileImageKey, 'profile.jpg');
+                }
+
+                return new UserDto({
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    username: user.username,
+                    profile: profileImageUrl,
+                    created: user.created,
+                });
+            }),
+        );
 
         return {
             data: usersDto,
@@ -105,13 +116,13 @@ export class UsersService {
         file: Express.Multer.File,
         userId: string,
     ): Promise<void> {
-        const [images] = await this.s3Service.upload([file], userId)
+        const result = await this.s3Service.upload(file)
         await this.userRepository.update(
             {
                 id: userId
             },
             {
-                profileImage: images
+                profileImage: result.Key
             }
         )
 
