@@ -7,6 +7,8 @@ import { PlaceDto } from './dto/place.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserRole } from '../users/user.entity';
+import { CheckPermissions } from '../auth/decorators/permission.decorator';
+import { MODULES, PERMISSIONS } from "../auth/role"
 
 
 @ApiTags('places')
@@ -20,6 +22,7 @@ export class PlacesController {
     @ApiResponse({ status: 200, description: 'Get places list' })
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
+    @CheckPermissions(MODULES.places, PERMISSIONS.detail)
     async getPlaces(
         @Query() paginationDto: PaginationDto
     ): Promise<PaginationResponseDto<PlaceDto>> {

@@ -8,7 +8,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommentModule } from './modules/comment/comment.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { S3Module } from './providers/s3/s3.module';
 import { CommonModule } from './modules/common/common.module';
@@ -17,6 +17,8 @@ import { PlacesModule } from './modules/places/places.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { PermissionGuard } from './modules/auth/guards/permission.guard';
+import { JwtGuard } from './modules/auth/guards/jwt-auth.guard';
 
 //Configurar el mailer module aqui para aislar el modulo a este modulo y que no este a nivel global.
 //Darle una vuelta a esto
@@ -71,6 +73,10 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard
     }
   ],
 })
