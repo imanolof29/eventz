@@ -10,6 +10,7 @@ import { Place } from '../places/place.entity';
 import { UserDto } from '../users/dto/user.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { S3Service } from 'src/providers/s3/s3.service';
 
 @Injectable()
 export class CommentService {
@@ -17,7 +18,8 @@ export class CommentService {
     constructor(
         @InjectRepository(Comment) private commentRepository: Repository<Comment>,
         @InjectRepository(User) private userRepository: Repository<User>,
-        @InjectRepository(Place) private placeRepository: Repository<Event>
+        @InjectRepository(Place) private placeRepository: Repository<Event>,
+        private readonly s3Service: S3Service
     ) { }
 
     async getPlaceComments(
@@ -47,18 +49,27 @@ export class CommentService {
         //Calcular el número total de páginas
         const totalPages = Math.ceil(total / limit)
 
-        const commentsDto = comments.map((comment) => new CommentDto({
-            id: comment.id,
-            user: new UserDto({
-                id: comment.user.id,
-                firstName: comment.user.firstName,
-                lastName: comment.user.lastName,
-                email: comment.user.email,
-                username: comment.user.username,
-                created: comment.user.created
-            }),
-            content: comment.content,
-            created: comment.created
+        const commentsDto = await Promise.all(comments.map(async (comment) => {
+            const profileImageKey = comment.user.profileImage
+            let profileImageUrl: string | null = null;
+
+            if (profileImageKey) {
+                profileImageUrl = await this.s3Service.getPresignedUrl(profileImageKey, 'profile.jpg');
+            }
+            return new CommentDto({
+                id: comment.id,
+                user: new UserDto({
+                    id: comment.user.id,
+                    firstName: comment.user.firstName,
+                    lastName: comment.user.lastName,
+                    email: comment.user.email,
+                    username: comment.user.username,
+                    profile: profileImageUrl,
+                    created: comment.user.created
+                }),
+                content: comment.content,
+                created: comment.created
+            })
         }))
 
         return {
