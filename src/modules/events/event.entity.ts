@@ -1,8 +1,6 @@
 import { Category } from "src/modules/categories/category.entity";
 import { User } from "src/modules/users/user.entity";
-import { Comment } from "src/modules/comment/comment.entity";
-import { Point } from 'geojson';
-import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Purchase } from "src/modules/purchases/purchase.entity";
 
 @Entity({ name: 'events' })
@@ -17,21 +15,12 @@ export class Event {
     @Column()
     description: string;
 
-    @Index({ spatial: true })
-    @Column({
-        type: 'geometry',
-        spatialFeatureType: 'Point',
-        srid: 4326,
-        nullable: false
-    })
-    position: Point;
-
     @ManyToMany(() => Category)
     @JoinTable()
     categories: Category[];
 
-    @ManyToOne(() => User, user => user.events)
-    user: User;
+    @ManyToOne(() => User, user => user.organizedEvents)
+    organizer: User;
 
     @Column({ nullable: true })
     image: string;

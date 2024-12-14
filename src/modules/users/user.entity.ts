@@ -45,8 +45,8 @@ export class User {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created: Date;
 
-    @OneToMany(() => Event, (event) => event.user)
-    events: Event[]
+    @OneToMany(() => Event, (event) => event.organizer)
+    organizedEvents: Event[]
 
     @OneToMany(() => Comment, (comment) => comment.user)
     comments: Comment[]

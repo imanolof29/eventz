@@ -26,25 +26,12 @@ export class EventDto {
     @ApiProperty({ example: 150, description: 'Tickets sold' })
     ticketsSold: number
 
-    @ApiProperty({
-        example: {
-            type: 'Point',
-            coordinates: [
-                43.3365,
-                -1.7852
-            ]
-        },
-        description: 'Event geoposition'
-    })
-    position: string
-
     constructor(properties: {
         id: string;
         name: string;
         description: string;
         userId: string
         created: Date
-        position: string
         price?: number
         ticketLimit?: number
         ticketsSold: number
@@ -54,7 +41,6 @@ export class EventDto {
         this.description = properties.description
         this.userId = properties.userId
         this.created = properties.created
-        this.position = properties.position
         this.price = properties.price
         this.ticketLimit = properties.ticketLimit
         this.ticketsSold = properties.ticketsSold
