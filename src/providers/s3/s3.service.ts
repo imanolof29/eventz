@@ -1,80 +1,79 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { S3 } from 'aws-sdk'
 import { ConfigService } from "@nestjs/config";
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import * as sharp from 'sharp';
+import { v4 as uuidv4 } from 'uuid';
+import moment from "moment";
 
 @Injectable()
 export class S3Service {
 
-    private bucketName: string
-
-    private region: string
-
-    private readonly s3Client = new S3Client({
-        region: this.configService.getOrThrow('AWS_S3_REGION'),
-    });
+    private client: AWS.S3
 
     constructor(
         private readonly configService: ConfigService
     ) {
-        this.bucketName = this.configService.getOrThrow('AWS_S3_BUCKET_NAME')
-        this.region = this.configService.getOrThrow('AWS_S3_REGION')
+        this.client = new S3({
+            region: this.configService.getOrThrow("AWS_S3_REGION"),
+            credentials: {
+                accessKeyId: this.configService.getOrThrow('AWS_ACCESS_KEY_ID'),
+                secretAccessKey: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY')
+            }
+        })
     }
 
-    convert = require('heic-convert');
-
-    async heicToJpeg(file: Buffer) {
-        const outputBuffer = await this.convert({
-            buffer: file,
-            format: 'JPEG',
-            quality: 1,
-        });
-
-        return outputBuffer as Buffer;
-    }
-
-    async upload(
-        files: Express.Multer.File[],
-        userId: string,
-    ): Promise<string[]> {
-        const uploadedUris: string[] = [];
-
-        for (const file of files) {
-            if (!file.mimetype.startsWith('image')) {
-                throw new HttpException(
-                    "You're trying to upload a non-image file",
-                    HttpStatus.PRECONDITION_FAILED,
-                );
+    async upload(file: Express.Multer.File) {
+        try {
+            const key = uuidv4()
+            const params = {
+                Bucket: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
+                Key: key,
+                Body: file.buffer,
+                ContentType: file.mimetype
             }
-
-            let readyImage = file.buffer;
-
-            const isHeic = file.mimetype === 'image/heic';
-
-            if (isHeic) {
-                const convertedImage = await this.heicToJpeg(file.buffer);
-                readyImage = convertedImage;
-            }
-
-            const processedImage = await sharp(readyImage)
-                .resize(1000)
-                .toFormat('jpeg')
-                .toBuffer();
-
-            const s3ImageKey = `${userId}-${Date.now()}-${Math.floor(Math.random() * 6)}.jpeg`;
-
-            await this.s3Client.send(
-                new PutObjectCommand({
-                    Bucket: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
-                    Key: s3ImageKey,
-                    Body: processedImage,
-                }),
-            );
-            const s3Uri = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${s3ImageKey}`;
-            uploadedUris.push(s3Uri);
+            const uploadResponse = await this.client.upload(params).promise()
+            const url = await this.getPresignedUrl(key, file.originalname)
+            return { ...uploadResponse, url }
+        } catch (error) {
+            console.log(error)
+            throw error
         }
+    }
 
-        return uploadedUris;
+    async get(bucket: string, key: string) {
+        const params = {
+            Bucket: bucket,
+            Key: key,
+        };
+        return await this.client.getObject(params).promise();
+    }
+
+    async getPresignedUrl(key: string, originalname: string) {
+        const params = {
+            Bucket: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
+            Key: key,
+            Expires: 60 * 60 * 24 * 7,
+            ResponseContentDisposition:
+                'attachment; filename ="' + originalname + '"',
+        };
+        return await this.client.getSignedUrlPromise('getObject', params);
+    }
+
+    async isPreSignedUrlExpired(url: string) {
+        const parsedUrl = new URL(url);
+        const search_params = parsedUrl.searchParams;
+
+        if (!search_params.has('X-Amz-Expires')) {
+            return true;
+        }
+        const urlGeneratedDate = search_params.get('X-Amz-Date');
+        const parsedGeneratedDate = moment(urlGeneratedDate, 'YYYYMMDDTHHmmssZ');
+        const expirationTime = search_params.get('X-Amz-Expires') || '';
+
+        const expirationDate = parsedGeneratedDate.add(
+            parseInt(expirationTime),
+            'seconds',
+        );
+        return moment().isAfter(expirationDate);
     }
 
 }

@@ -1,9 +1,11 @@
 import { Event } from 'src/modules/events/event.entity'
 import { Comment } from 'src/modules/comment/comment.entity'
 import { passwordHash } from 'src/utils/password.utility'
-import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { BeforeInsert, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Purchase } from 'src/modules/purchases/purchase.entity'
 import { DeviceToken } from './deviceToken.entity'
+import { Notification } from '../notifications/notification.entity'
+import { Organization } from '../organizations/organization.entity'
 
 export enum UserRole {
     ADMIN = 'ADMIN',
@@ -45,8 +47,8 @@ export class User {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created: Date;
 
-    @OneToMany(() => Event, (event) => event.user)
-    events: Event[]
+    @OneToMany(() => Event, (event) => event.organizer)
+    organizedEvents: Event[]
 
     @OneToMany(() => Comment, (comment) => comment.user)
     comments: Comment[]
@@ -56,6 +58,14 @@ export class User {
 
     @OneToMany(() => DeviceToken, token => token.user, { cascade: true })
     tokens: DeviceToken[]
+
+    @OneToMany(() => Notification, notification => notification.user)
+    notifications: Notification
+
+    @ManyToOne(() => Organization, organization => organization.employees, {
+        nullable: true
+    })
+    organization: Organization
 
     @BeforeInsert()
     async hashPassword() {
