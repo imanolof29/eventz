@@ -4,6 +4,7 @@ import { Comment } from "src/modules/comment/comment.entity";
 import { Point } from 'geojson';
 import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Purchase } from "src/modules/purchases/purchase.entity";
+import { Organizer } from "../organizers/organizer.entity";
 
 @Entity({ name: 'events' })
 export class Event {
@@ -30,8 +31,8 @@ export class Event {
     @JoinTable()
     categories: Category[];
 
-    @ManyToOne(() => User, user => user.events)
-    user: User;
+    @ManyToOne(() => Organizer, organizer => organizer.events)
+    organizer: Organizer;
 
     @Column({ nullable: true })
     image: string;
