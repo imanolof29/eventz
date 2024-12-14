@@ -4,6 +4,7 @@ import { passwordHash } from 'src/utils/password.utility'
 import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Purchase } from 'src/modules/purchases/purchase.entity'
 import { DeviceToken } from './deviceToken.entity'
+import { Notification } from '../notifications/notification.entity'
 
 export enum UserRole {
     ADMIN = 'ADMIN',
@@ -56,6 +57,9 @@ export class User {
 
     @OneToMany(() => DeviceToken, token => token.user, { cascade: true })
     tokens: DeviceToken[]
+
+    @OneToMany(() => Notification, notification => notification.user)
+    notifications: Notification
 
     @BeforeInsert()
     async hashPassword() {
