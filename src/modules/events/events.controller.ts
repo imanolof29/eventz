@@ -3,13 +3,13 @@ import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventDto } from './dto/event.dto';
 import { GetUser } from 'src/modules/auth/decorators/get-user.decorator';
-import { Auth } from 'src/modules/auth/decorators/auth.decorator';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/modules/users/user.entity';
-import { OptionalIntPipe } from 'src/pipes/optional-int.pipe';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { CheckPermissions } from '../auth/decorators/permission.decorator';
+import { MODULES, PERMISSIONS } from '../auth/role';
 
 @ApiTags('events')
 @Controller('events')
@@ -23,7 +23,7 @@ export class EventsController {
     @ApiResponse({ status: 201, description: 'Event created' })
     @ApiResponse({ status: 401, description: 'Not authenticated' })
     @ApiResponse({ status: 403, description: 'Not permission' })
-    @Auth()
+    @CheckPermissions(MODULES.events, PERMISSIONS.add)
     async createEvent(@Body() dto: CreateEventDto, @GetUser() user: User): Promise<void> {
         return this.eventsService.createEvent({ dto, userId: user.id })
     }
@@ -32,7 +32,7 @@ export class EventsController {
     @ApiOperation({ summary: 'Get events' })
     @ApiResponse({ status: 200, description: 'Get event list' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.events, PERMISSIONS.list)
     async getEvents(
         @Query() paginationDto: PaginationDto
     ): Promise<PaginationResponseDto<EventDto>> {
@@ -40,7 +40,7 @@ export class EventsController {
     }
 
     @Get('findNearby')
-    @Auth()
+    @CheckPermissions(MODULES.events, PERMISSIONS.list)
     async getNearbyEvents(
         @Query('latitude', ParseFloatPipe) latitude: number,
         @Query('longitude', ParseFloatPipe) longitude: number,
@@ -55,7 +55,7 @@ export class EventsController {
     @ApiResponse({ status: 200, description: 'Event detail' })
     @ApiResponse({ status: 404, description: 'Event not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.events, PERMISSIONS.detail)
     async pickEvent(@Param('id') id: string): Promise<EventDto> {
         return this.eventsService.getEventById({ id })
     }
@@ -68,7 +68,7 @@ export class EventsController {
     @ApiResponse({ status: 403, description: 'Not permission' })
     @ApiResponse({ status: 404, description: 'Event not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.events, PERMISSIONS.edit)
     async updateEvent(@Param('id') id: string, @Body() dto: UpdateEventDto) {
         return this.eventsService.updateEvent({ id, dto })
     }
@@ -81,7 +81,7 @@ export class EventsController {
     @ApiResponse({ status: 403, description: 'Not permission' })
     @ApiResponse({ status: 404, description: 'Event not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.events, PERMISSIONS.delete)
     async deleteEvent(@Param('id') id: string) {
         return this.eventsService.deleteEvent({ id })
     }

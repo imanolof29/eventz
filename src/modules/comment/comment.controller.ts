@@ -5,9 +5,10 @@ import { CommentDto } from './dto/comment.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { GetUser } from 'src/modules/auth/decorators/get-user.decorator';
 import { User } from 'src/modules/users/user.entity';
-import { Auth } from 'src/modules/auth/decorators/auth.decorator';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { CheckPermissions } from '../auth/decorators/permission.decorator';
+import { MODULES, PERMISSIONS } from '../auth/role';
 
 //TODO: Darle una vuelta al planteamiento de los params y body
 
@@ -21,7 +22,7 @@ export class CommentController {
     @ApiOperation({ summary: 'Get event comments' })
     @ApiResponse({ status: 200, description: 'Get comments' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.comments, PERMISSIONS.list)
     async getPlaceComments(
         @Param('id') id: string,
         @Query() paginationDto: PaginationDto
@@ -34,7 +35,7 @@ export class CommentController {
     @ApiResponse({ status: 201, description: 'Comment created' })
     @ApiResponse({ status: 401, description: 'Not authenticated' })
     @ApiResponse({ status: 403, description: 'Not permission' })
-    @Auth()
+    @CheckPermissions(MODULES.comments, PERMISSIONS.add)
     async createComment(@Body() dto: CreateCommentDto, @GetUser() user: User): Promise<void> {
         return this.commentService.createComment({ dto, userId: user.id })
     }
@@ -46,7 +47,7 @@ export class CommentController {
     @ApiResponse({ status: 403, description: 'Not permission' })
     @ApiResponse({ status: 404, description: 'Not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.comments, PERMISSIONS.delete)
     async deleteComment(@Body() commentId: string, @Param('id') id: string): Promise<void> {
         return this.commentService.deleteComment({ commentId, placeId: id })
     }

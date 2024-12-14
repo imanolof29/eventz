@@ -4,13 +4,14 @@ import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Auth } from 'src/modules/auth/decorators/auth.decorator';
-import { User, UserRole } from './user.entity';
+import { User } from './user.entity';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { RegisterTokenDto } from './dto/register-token.dto';
+import { CheckPermissions } from '../auth/decorators/permission.decorator';
+import { MODULES, PERMISSIONS } from '../auth/role';
 
 @ApiTags('users')
 @Controller('users')
@@ -22,7 +23,7 @@ export class UsersController {
     @ApiOperation({ summary: 'Get users' })
     @ApiResponse({ status: 200, description: 'Get user list' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.users, PERMISSIONS.list)
     async getUsers(
         @Query() paginationDto: PaginationDto
     ): Promise<PaginationResponseDto<UserDto>> {
@@ -34,7 +35,7 @@ export class UsersController {
     @ApiResponse({ status: 201, description: 'User created' })
     @ApiResponse({ status: 400, description: 'Invalid request' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth(UserRole.ADMIN)
+    @CheckPermissions(MODULES.users, PERMISSIONS.add)
     async createUser(@Body() dto: CreateUserDto): Promise<void> {
         return this.usersService.createUser({ dto })
     }
@@ -45,7 +46,7 @@ export class UsersController {
     @ApiResponse({ status: 200, description: 'User detail' })
     @ApiResponse({ status: 404, description: 'User not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.users, PERMISSIONS.detail)
     async pickUser(@Param('id') id: string): Promise<UserDto> {
         return this.usersService.getUserById({ id })
     }
@@ -57,7 +58,7 @@ export class UsersController {
     @ApiResponse({ status: 401, description: 'Not authenticated' })
     @ApiResponse({ status: 403, description: 'Not permission' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.users, PERMISSIONS.edit)
     async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto): Promise<void> {
         return this.usersService.updateUser({ id, dto })
     }
@@ -66,7 +67,7 @@ export class UsersController {
     @ApiOperation({ summary: 'Upload user profile image' })
     @ApiResponse({ status: 200, description: 'User image uploaded' })
     @UseInterceptors(FileInterceptor('file'))
-    @Auth()
+    @CheckPermissions(MODULES.users, PERMISSIONS.edit)
     async uploadProfilePicture(
         @UploadedFile(
             new ParseFilePipe({
@@ -82,7 +83,7 @@ export class UsersController {
     @ApiOperation({ summary: 'Register device token' })
     @ApiResponse({ status: 200, description: 'Device token registered' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.users, PERMISSIONS.add)
     async registerToken(
         @GetUser() user: User, @Body() dto: RegisterTokenDto
     ): Promise<void> {

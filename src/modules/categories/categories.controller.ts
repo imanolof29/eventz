@@ -9,6 +9,8 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/s
 import { UserRole } from 'src/modules/users/user.entity';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { CheckPermissions } from '../auth/decorators/permission.decorator';
+import { MODULES, PERMISSIONS } from '../auth/role';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -20,7 +22,7 @@ export class CategoriesController {
     @ApiOperation({ summary: 'Create new category' })
     @ApiBody({ type: CreateCategoryDto })
     @ApiResponse({ status: 201, description: 'Category created' })
-    @Auth(UserRole.ADMIN)
+    @CheckPermissions(MODULES.categories, PERMISSIONS.add)
     async createCategory(@Body() dto: CreateCategoryDto): Promise<void> {
         return this.categoriesService.createCategory({ dto })
     }
@@ -28,7 +30,7 @@ export class CategoriesController {
     @Get('find')
     @ApiOperation({ summary: 'Get category list' })
     @ApiResponse({ status: 200, description: 'Category list' })
-    @Auth()
+    @CheckPermissions(MODULES.categories, PERMISSIONS.list)
     async getCategories(
         @Query() paginationDto: PaginationDto
     ): Promise<PaginationResponseDto<CategoryDto>> {
@@ -40,17 +42,17 @@ export class CategoriesController {
     @ApiParam({ name: 'id', description: 'Category ID' })
     @ApiResponse({ status: 200, description: 'Category details' })
     @ApiResponse({ status: 404, description: 'Category not found' })
-    @Auth()
+    @CheckPermissions(MODULES.categories, PERMISSIONS.detail)
     async getCategoryById(@Param('id') id: string): Promise<CategoryDto> {
         return this.categoriesService.getCategoryById({ id })
     }
 
     @Delete('delete/:id')
-    @Auth(UserRole.ADMIN)
     @ApiResponse({ status: 200, description: 'Category deleted' })
     @ApiResponse({ status: 401, description: 'Not authenticated' })
     @ApiResponse({ status: 403, description: 'Not permissions' })
     @ApiResponse({ status: 404, description: 'Category not found' })
+    @CheckPermissions(MODULES.categories, PERMISSIONS.delete)
     async deleteCategory(@Param('id') id: string) {
         return this.categoriesService.deleteCategory({ id })
     }
@@ -59,7 +61,7 @@ export class CategoriesController {
     @ApiParam({ name: 'id', description: 'Category ID' })
     @ApiResponse({ status: 200, description: 'Category updated' })
     @ApiResponse({ status: 404, description: 'Category not found' })
-    @Auth(UserRole.ADMIN)
+    @CheckPermissions(MODULES.categories, PERMISSIONS.edit)
     async updateCategory(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
         return this.categoriesService.updateCategory({ id, dto })
     }

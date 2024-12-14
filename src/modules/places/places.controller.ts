@@ -21,7 +21,6 @@ export class PlacesController {
     @ApiOperation({ summary: 'Get places' })
     @ApiResponse({ status: 200, description: 'Get places list' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
     @CheckPermissions(MODULES.places, PERMISSIONS.list)
     async getPlaces(
         @Query() paginationDto: PaginationDto
@@ -30,6 +29,7 @@ export class PlacesController {
     }
 
     @Get('nearby')
+    @CheckPermissions(MODULES.places, PERMISSIONS.list)
     async getPlacesNearPosition(
         @Query('lat') lat: number,
         @Query('lon') lon: number,
@@ -43,7 +43,7 @@ export class PlacesController {
     @ApiOperation({ summary: 'Get place detail' })
     @ApiResponse({ status: 200, description: 'Get place detail' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth()
+    @CheckPermissions(MODULES.places, PERMISSIONS.detail)
     async pickPlace(@Param('id') id: string): Promise<PlaceDto> {
         return this.placesService.getPlaceById({ id })
     }
@@ -53,7 +53,7 @@ export class PlacesController {
     @ApiResponse({ status: 200, description: 'Import Ok' })
     @ApiResponse({ status: 500, description: 'Server error' })
     @UseInterceptors(FileInterceptor('file'))
-    @Auth(UserRole.ADMIN)
+    @CheckPermissions(MODULES.places, PERMISSIONS.add)
     async importData(
         @UploadedFile() file: Express.Multer.File
     ) {
@@ -64,7 +64,7 @@ export class PlacesController {
     @ApiOperation({ summary: 'Delete all data' })
     @ApiResponse({ status: 200, description: 'Delete all data' })
     @ApiResponse({ status: 500, description: 'Server error' })
-    @Auth(UserRole.ADMIN)
+    @CheckPermissions(MODULES.places, PERMISSIONS.delete)
     async deleteData() {
         return await this.placesService.deleteAllData()
     }
