@@ -17,6 +17,7 @@ import { PlacesModule } from './modules/places/places.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { OrganizationsModule } from './modules/organizations/organizations.module';
 
 //Configurar el mailer module aqui para aislar el modulo a este modulo y que no este a nivel global.
 //Darle una vuelta a esto
@@ -64,7 +65,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     PurchasesModule,
     CommonModule,
     S3Module,
-    PlacesModule
+    PlacesModule,
+    OrganizationsModule
   ],
   controllers: [],
   providers: [

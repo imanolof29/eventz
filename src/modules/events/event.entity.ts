@@ -2,6 +2,7 @@ import { Category } from "src/modules/categories/category.entity";
 import { User } from "src/modules/users/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Purchase } from "src/modules/purchases/purchase.entity";
+import { Organization } from "../organizations/organization.entity";
 
 @Entity({ name: 'events' })
 export class Event {
@@ -19,8 +20,8 @@ export class Event {
     @JoinTable()
     categories: Category[];
 
-    @ManyToOne(() => User, user => user.organizedEvents)
-    organizer: User;
+    @ManyToOne(() => Organization, organization => organization.events)
+    organizer: Organization;
 
     @Column({ nullable: true })
     image: string;
