@@ -22,7 +22,7 @@ export class PlacesController {
     @ApiResponse({ status: 200, description: 'Get places list' })
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()
-    @CheckPermissions(MODULES.places, PERMISSIONS.detail)
+    @CheckPermissions(MODULES.places, PERMISSIONS.list)
     async getPlaces(
         @Query() paginationDto: PaginationDto
     ): Promise<PaginationResponseDto<PlaceDto>> {

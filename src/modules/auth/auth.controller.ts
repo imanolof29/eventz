@@ -1,13 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GoogleOauthGuard } from './guards/google-oauth.guard';
-import { Response } from 'express';
 import { RefreshJwtGuard } from './guards/refresh-auth.guard';
 import { User } from 'src/modules/users/user.entity';
 import { GetUser } from './decorators/get-user.decorator';
+import { Public } from './decorators/public.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -16,6 +15,7 @@ export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
     @Post('create')
+    @Public()
     @ApiOperation({ summary: 'Create new user' })
     @ApiBody({ type: RegisterAuthDto })
     @ApiResponse({ status: 201, description: 'User created' })
@@ -26,12 +26,13 @@ export class AuthController {
     }
 
     @Post('login')
+    @Public()
     @ApiOperation({ summary: 'Login user in system' })
     @ApiBody({ type: LoginAuthDto })
     @ApiResponse({ status: 400, description: 'Bad request' })
     @ApiResponse({ status: 401, description: 'Invalid credentials' })
     @ApiResponse({ status: 500, description: 'Internal server error' })
-    async login(@Body() dto: LoginAuthDto): Promise<{ accessToken: string; email: string }> {
+    async login(@Body() dto: LoginAuthDto) {
         return this.authService.login({ dto })
     }
 

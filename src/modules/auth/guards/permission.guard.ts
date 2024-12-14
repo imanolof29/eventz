@@ -6,17 +6,19 @@ import { User } from "src/modules/users/user.entity";
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
-
     constructor(private reflector: Reflector) { }
 
     canActivate(context: ExecutionContext): boolean {
-        const { module, permission } = this.reflector.getAllAndOverride<{ module: Module; permission: Permission }>(
+        const metadata = this.reflector.getAllAndOverride<{ module: Module; permission: Permission }>(
             CHECK_PERMISSION_KEY,
             [context.getHandler(), context.getClass()]
         );
-        if (!module || !permission) {
+
+        if (!metadata) {
             return true;
         }
+
+        const { module, permission } = metadata;
 
         const request = context.switchToHttp().getRequest();
         const user = request.user as User;
@@ -33,5 +35,4 @@ export class PermissionGuard implements CanActivate {
 
         return true;
     }
-
 }

@@ -19,6 +19,7 @@ import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { PermissionGuard } from './modules/auth/guards/permission.guard';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
+import { JwtGuard } from './modules/auth/guards/jwt-auth.guard';
 
 //Configurar el mailer module aqui para aislar el modulo a este modulo y que no este a nivel global.
 //Darle una vuelta a esto
@@ -77,8 +78,12 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
     },
     {
       provide: APP_GUARD,
+      useClass: JwtGuard
+    },
+    {
+      provide: APP_GUARD,
       useClass: PermissionGuard
-    }
+    },
   ],
 })
 export class AppModule implements NestModule {
