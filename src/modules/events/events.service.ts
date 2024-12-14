@@ -17,7 +17,7 @@ export class EventsService {
     constructor(
         @InjectRepository(Event) private eventRepository: Repository<Event>,
         @InjectRepository(Category) private categoryRepository: Repository<Category>,
-        @InjectRepository(User) private userRepository: Repository<User>
+        @InjectRepository(User) private userRepository: Repository<User>,
     ) { }
 
     async getEvents(pagination: PaginationDto): Promise<PaginationResponseDto<EventDto>> {
@@ -87,19 +87,24 @@ export class EventsService {
     }
 
     async createEvent(properties: { dto: CreateEventDto, userId: string }) {
-        const categories = await this.categoryRepository.find({ where: { id: In(properties.dto.categoryIds) } })
-        const user = await this.userRepository.findOneBy({ id: properties.userId })
-        const newEvent = await this.eventRepository.create({
-            name: properties.dto.name,
-            description: properties.dto.description,
-            organizer: user,
-            categories,
-            price: properties.dto.price,
-            ticketLimit: properties.dto.ticketLimit,
-            ticketsSold: properties.dto.ticketsSold
-        })
+        try {
+            const categories = await this.categoryRepository.find({ where: { id: In(properties.dto.categoryIds) } })
+            const user = await this.userRepository.findOneBy({ id: properties.userId })
+            const newEvent = await this.eventRepository.create({
+                name: properties.dto.name,
+                description: properties.dto.description,
+                organizer: user,
+                categories,
+                price: properties.dto.price,
+                ticketLimit: properties.dto.ticketLimit,
+                ticketsSold: properties.dto.ticketsSold
+            })
 
-        await this.eventRepository.save(newEvent)
+            await this.eventRepository.save(newEvent)
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
     }
 
     async getEventById(properties: { id: string }) {

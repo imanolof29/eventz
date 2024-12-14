@@ -6,6 +6,7 @@ import { Event } from 'src/modules/events/event.entity';
 import { Purchase } from './purchase.entity';
 import { PurchaseDto } from './dto/purchase.dto';
 import { UserDto } from 'src/modules/users/dto/user.dto';
+import { StripeService } from 'src/providers/stripe/stripe.service';
 
 @Injectable()
 export class PurchasesService {
@@ -13,29 +14,37 @@ export class PurchasesService {
     constructor(
         @InjectRepository(Event) private eventRepository: Repository<Event>,
         @InjectRepository(User) private userRepository: Repository<User>,
-        @InjectRepository(Purchase) private purchaseRepository: Repository<Purchase>
+        @InjectRepository(Purchase) private purchaseRepository: Repository<Purchase>,
+        private readonly stripeService: StripeService
     ) { }
 
-    async purchase(userId: string, eventId: string, quantity: number): Promise<void> {
-        const user = await this.userRepository.findOneBy({ id: userId })
-        const event = await this.eventRepository.findOneBy({ id: eventId })
-        if (!user) {
-            throw new BadRequestException('User not found')
+    async purchase(userId: string, eventId: string, quantity: number): Promise<any> {
+        try {
+            const user = await this.userRepository.findOneBy({ id: userId })
+            const event = await this.eventRepository.findOneBy({ id: eventId })
+            if (!user) {
+                throw new BadRequestException('User not found')
+            }
+            if (!event) {
+                throw new BadRequestException('Event not found')
+            }
+            if (event.ticketsSold + quantity > event.ticketLimit) {
+                throw new BadRequestException('Ticket limit reached')
+            }
+            const payment = await this.stripeService.paymentIntent(event.price * quantity, 'eur')
+            const purchase = this.purchaseRepository.create({
+                buyer: user,
+                event,
+                purchaseDate: new Date()
+            })
+            event.ticketsSold += quantity
+            await this.eventRepository.save(event)
+            await this.purchaseRepository.save(purchase)
+            return payment
+        } catch (error) {
+            console.log(error)
+            throw error
         }
-        if (!event) {
-            throw new BadRequestException('Event not found')
-        }
-        if (event.ticketsSold + quantity > event.ticketLimit) {
-            throw new BadRequestException('Ticket limit reached')
-        }
-        const purchase = this.purchaseRepository.create({
-            buyer: user,
-            event,
-            purchaseDate: new Date()
-        })
-        event.ticketsSold += quantity
-        await this.eventRepository.save(event)
-        await this.purchaseRepository.save(purchase)
     }
 
     async getUserPurchases(properties: { userId: string }): Promise<PurchaseDto[]> {

@@ -9,11 +9,11 @@ export class StripeService {
         private readonly configService: ConfigService
     ) {
         this.stripe = new Stripe(
-            this.configService.getOrThrow('STRIPE_API_KEY')
+            this.configService.getOrThrow('STRIPE_SECRET_API_KEY')
         )
     }
 
-    async createCheckoutSession(amount: number, currency: string) {
+    async paymentIntent(amount: number, currency: string) {
         try {
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: amount * 100,

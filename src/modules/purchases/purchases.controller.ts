@@ -4,6 +4,7 @@ import { CreatePurchaseDto } from './dto/create.purchase.dto';
 import { GetUser } from 'src/modules/auth/decorators/get-user.decorator';
 import { User } from 'src/modules/users/user.entity';
 import { PurchaseDto } from './dto/purchase.dto';
+import { Auth } from '../auth/decorators/auth.decorator';
 
 @Controller('purchases')
 export class PurchasesController {
@@ -11,6 +12,7 @@ export class PurchasesController {
     constructor(private readonly purchaseService: PurchasesService) { }
 
     @Post('purchase')
+    @Auth()
     async purchase(@Body() dto: CreatePurchaseDto, @GetUser() user: User): Promise<void> {
         return this.purchaseService.purchase(user.id, dto.eventId, dto.quantity)
     }
