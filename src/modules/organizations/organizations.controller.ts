@@ -1,5 +1,5 @@
 import { Body, Controller, Get, MaxFileSizeValidator, ParseFilePipe, Post, Query, UploadedFile } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrganizationsService } from './organizations.service';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
@@ -13,13 +13,18 @@ export class OrganizationsController {
 
     constructor(private readonly organizationService: OrganizationsService) { }
 
-    @Post('logo')
+    @Post('create')
+    @ApiOperation({ summary: 'Create new organization' })
+    @ApiBody({ type: CreateOrganizationDto })
+    @ApiResponse({ status: 201, description: 'Organization created' })
     @Auth()
     async createOrganization(@Body() dto: CreateOrganizationDto): Promise<void> {
         return await this.organizationService.createOrganization(dto)
     }
 
     @Get('find')
+    @ApiOperation({ summary: 'Get organizations' })
+    @ApiResponse({ status: 200, description: 'Get organization list' })
     @Auth()
     async getOrganizations(
         @Query() paginationDto: PaginationDto
@@ -28,6 +33,8 @@ export class OrganizationsController {
     }
 
     @Post('logo')
+    @ApiOperation({ summary: 'Update organization logo' })
+    @ApiResponse({ status: 201, description: 'Image uploaded' })
     @Auth()
     async uploadLogoImage(
         @UploadedFile(
