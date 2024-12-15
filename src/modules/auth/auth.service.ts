@@ -10,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuth2Client } from 'google-auth-library';
 import { EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD } from 'src/errors/errors.constants';
+import { ROLE_PERMISSIONS } from './role';
+import { UserRole } from 'aws-sdk/clients/workmail';
 
 @Injectable()
 export class AuthService {
@@ -51,9 +53,11 @@ export class AuthService {
 
         const token = this.jwtService.sign(payload)
 
-        const refresh = this.jwtService.sign(payload, { secret: this.configService.get('REFRESH_SECRET'), expiresIn: '30d' },)
+        const refresh = this.jwtService.sign(payload, { secret: this.configService.get('REFRESH_SECRET'), expiresIn: '30d' })
 
-        return { accessToken: token, refreshToken: refresh, email: userFound.email }
+        const permissions = this.getPermissions(userFound.role)
+
+        return { accessToken: token, refreshToken: refresh, email: userFound.email, permissions }
 
     }
 
@@ -105,6 +109,10 @@ export class AuthService {
         const token = this.jwtService.sign(newPayload)
         const refresh = this.jwtService.sign(newPayload, { secret: this.configService.get('REFRESH_SECRET'), expiresIn: '30d' },)
         return { accessToken: token, refreshToken: refresh, email: user.email }
+    }
+
+    private getPermissions(role: UserRole): Promise<void> {
+        return ROLE_PERMISSIONS[role]
     }
 
 
