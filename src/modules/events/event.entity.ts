@@ -1,5 +1,4 @@
 import { Category } from "src/modules/categories/category.entity";
-import { User } from "src/modules/users/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Purchase } from "src/modules/purchases/purchase.entity";
 import { Organization } from "../organizations/organization.entity";

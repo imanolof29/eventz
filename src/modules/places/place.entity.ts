@@ -1,5 +1,6 @@
-import { Column, Entity, Index, OneToMany, Point, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, OneToMany, OneToOne, Point, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from "../comment/comment.entity";
+import { Organization } from "../organizations/organization.entity";
 
 @Entity({ name: 'places' })
 export class Place {
@@ -24,6 +25,9 @@ export class Place {
         nullable: false
     })
     position: Point;
+
+    @OneToOne(() => Organization, (organization) => organization.place)
+    organization: Organization
 
     @Column({ nullable: true })
     city: string
