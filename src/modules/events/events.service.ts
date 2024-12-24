@@ -48,8 +48,6 @@ export class EventsService {
                     id: event.id,
                     name: event.name,
                     description: event.description,
-                    //TODO: SOLUCION TEMPORAL
-                    userId: "",
                     created: event.created,
                     price: event.price,
                     ticketLimit: event.ticketLimit,
@@ -121,27 +119,30 @@ export class EventsService {
     }
 
     async getEventById(properties: { id: string }) {
-        const event = await this.eventRepository.findOne({
-            where: {
-                id: properties.id
-            }, relations: ['user']
-        })
+        try {
+            const event = await this.eventRepository.findOne({
+                where: {
+                    id: properties.id
+                }
+            })
 
-        if (!event) {
-            throw new NotFoundException(EVENT_NOT_FOUND)
+            if (!event) {
+                throw new NotFoundException(EVENT_NOT_FOUND)
+            }
+
+            return new EventDto({
+                id: event.id,
+                name: event.name,
+                description: event.description,
+                created: event.created,
+                price: event.price,
+                ticketLimit: event.ticketLimit,
+                ticketsSold: event.ticketsSold
+            })
+        } catch (error) {
+            console.log(error)
+            throw error
         }
-
-        return new EventDto({
-            id: event.id,
-            name: event.name,
-            description: event.description,
-            userId: event.organizer.id,
-            created: event.created,
-            price: event.price,
-            ticketLimit: event.ticketLimit,
-            ticketsSold: event.ticketsSold
-        })
-
     }
 
     async updateEvent(properties: { id: string; dto: UpdateEventDto }) {
