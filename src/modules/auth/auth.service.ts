@@ -73,7 +73,7 @@ export class AuthService {
 
     async refreshToken(properties: { userId: string }): Promise<AuthResponseDto> {
         const user = await this.userRepository.findOneBy({ id: properties.userId })
-        if (!user) throw new UnauthorizedException('User not found')
+        if (!user) throw new UnauthorizedException(USER_NOT_FOUND)
         const payload = {
             id: user.id,
             name: user.firstName

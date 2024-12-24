@@ -12,3 +12,5 @@ export const USER_NOT_ACTIVE = 'User is not active';
 export const INVALID_PASSWORD = 'Invalid password';
 export const EMAIL_ALREADY_EXISTS = 'Email already exists';
 export const USERNAME_ALREADY_EXISTS = 'Username already exists';
+export const ERROR_SENDING_EMAIL = 'Error sending email';
+export const INSUFFICIENT_DATA = 'Insufficient data provided to send email. Please ensure all required parameters are included.'
