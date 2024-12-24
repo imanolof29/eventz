@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsUUID } from "class-validator";
 
-export class CreateOrganizationDto {
+export class UpdateOrganizationDto {
 
     @IsString()
     @IsNotEmpty()
