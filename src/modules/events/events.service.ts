@@ -91,10 +91,13 @@ export class EventsService {
     async createEvent(properties: { dto: CreateEventDto, userId: string }) {
         try {
             const user = await this.userRepository.findOneByOrFail({ id: properties.userId })
-            const organizer = await this.organizationRepository.findOneByOrFail({
-                employees: {
-                    id: user.id
-                }
+            const organizer = await this.organizationRepository.findOne({
+                where: {
+                    employees: {
+                        id: user.id
+                    },
+                },
+                relations: ['place']
             })
             if (!organizer.place) {
                 throw new BadRequestException("Organization does not have a place")
