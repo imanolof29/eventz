@@ -9,7 +9,8 @@ import { User } from 'src/modules/users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuth2Client } from 'google-auth-library';
-import { EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD } from 'src/errors/errors.constants';
+import { EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD, USER_NOT_FOUND } from 'src/errors/errors.constants';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -105,6 +106,15 @@ export class AuthService {
         const token = this.jwtService.sign(newPayload)
         const refresh = this.jwtService.sign(newPayload, { secret: this.configService.get('REFRESH_SECRET'), expiresIn: '30d' },)
         return { accessToken: token, refreshToken: refresh, email: user.email }
+    }
+
+    async changePassword(properties: { userId: string, dto: ChangePasswordDto }) {
+        const user = await this.userRepository.findOneBy({ id: properties.userId })
+        if (!user) throw new NotFoundException(USER_NOT_FOUND)
+        const isPasswordValid = await passwordHash.comparePassword(properties.dto.oldPassword, user.password)
+        if (!isPasswordValid) throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST)
+        user.password = await passwordHash.cryptPassword(properties.dto.newPassword)
+        await this.userRepository.save(user)
     }
 
 
