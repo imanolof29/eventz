@@ -89,4 +89,13 @@ export class UsersController {
         return await this.usersService.registerDeviceToken({ token: dto.token, id: user.id })
     }
 
+    @Post('soft-delete')
+    @ApiOperation({ summary: 'Soft delete user' })
+    @ApiResponse({ status: 200, description: 'User soft deleted' })
+    @ApiResponse({ status: 500, description: 'Server error' })
+    @Auth()
+    async softDeleteUser(@GetUser() user: User): Promise<void> {
+        return await this.usersService.softDeleteUser({ id: user.id })
+    }
+
 }

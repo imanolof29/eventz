@@ -125,7 +125,15 @@ export class UsersService {
                 profileImage: result.Key
             }
         )
+    }
 
+    async softDeleteUser(properties: { id: string }): Promise<void> {
+        const userFound = await this.userRepository.findOneBy({ id: properties.id })
+        if (!userFound) {
+            throw new NotFoundException(USER_NOT_FOUND)
+        }
+        userFound.deletedAt = new Date()
+        await this.userRepository.save(userFound)
     }
 
 }
