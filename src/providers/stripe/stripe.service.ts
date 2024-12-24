@@ -16,10 +16,10 @@ export class StripeService {
     async paymentIntent(amount: number, currency: string) {
         try {
             const paymentIntent = await this.stripe.paymentIntents.create({
-                amount: amount * 100,
+                amount: amount,
                 currency,
             })
-            return paymentIntent
+            return { clientSecret: paymentIntent.client_secret }
         } catch (error) {
             console.log(error)
             throw new BadRequestException("Algo salio mal")

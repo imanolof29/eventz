@@ -28,9 +28,9 @@ export class PurchasesService {
             if (!event) {
                 throw new BadRequestException('Event not found')
             }
-            if (event.ticketsSold + quantity > event.ticketLimit) {
-                throw new BadRequestException('Ticket limit reached')
-            }
+            // if (event.ticketsSold + quantity > event.ticketLimit) {
+            //     throw new BadRequestException('Ticket limit reached')
+            // }
             const payment = await this.stripeService.paymentIntent(event.price * quantity, 'eur')
             const purchase = this.purchaseRepository.create({
                 buyer: user,
