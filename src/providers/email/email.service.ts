@@ -4,7 +4,7 @@ import { ERROR_SENDING_EMAIL, INSUFFICIENT_DATA } from "src/errors/errors.consta
 
 type EmailTemplate = 'welcome' | 'reset-password' | 'verify-email';
 
-interface EmailTemplateParams {
+export interface EmailTemplateParams {
     'welcome': { name: string; email: string; date: Date };
     'reset-password': { name: string; resetLink: string };
     'verify-email': { name: string; email: string };
