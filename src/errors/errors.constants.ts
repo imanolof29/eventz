@@ -9,3 +9,4 @@ export const INCORRECT_PASSWORD = 'Incorrect password'
 
 export const OPTIONAL_INT_PIPE_NUMBER = '$key should be a number';
 export const USER_NOT_ACTIVE = 'User is not active';
+export const INVALID_PASSWORD = 'Invalid password';

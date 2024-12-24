@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { passwordHash } from 'src/utils/password.utility';
 import { LoginAuthDto } from './dto/login-auth.dto';
@@ -9,7 +9,7 @@ import { User } from 'src/modules/users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuth2Client } from 'google-auth-library';
-import { EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD, USER_NOT_FOUND } from 'src/errors/errors.constants';
+import { EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD, INVALID_PASSWORD, USER_NOT_ACTIVE, USER_NOT_FOUND } from 'src/errors/errors.constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
@@ -37,6 +37,10 @@ export class AuthService {
 
         if (!userFound) {
             throw new NotFoundException(EMAIL_DOES_NOT_EXIST)
+        }
+
+        if (!userFound.deletedAt) {
+            throw new ForbiddenException(USER_NOT_ACTIVE)
         }
 
         const isPasswordValid = await passwordHash.comparePassword(properties.dto.password, userFound.password)
@@ -112,7 +116,7 @@ export class AuthService {
         const user = await this.userRepository.findOneBy({ id: properties.userId })
         if (!user) throw new NotFoundException(USER_NOT_FOUND)
         const isPasswordValid = await passwordHash.comparePassword(properties.dto.oldPassword, user.password)
-        if (!isPasswordValid) throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST)
+        if (!isPasswordValid) throw new HttpException(INVALID_PASSWORD, HttpStatus.BAD_REQUEST)
         user.password = await passwordHash.cryptPassword(properties.dto.newPassword)
         await this.userRepository.save(user)
     }
