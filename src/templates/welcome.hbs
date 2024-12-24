@@ -1,18 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
-    <title>Welcome</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a nuestra plataforma</title>
 </head>
 
 <body>
-    <h1>Hola, {{name}}!</h1>
-    <p>Gracias por registrarte en nuestra plataforma. Tu cuenta está lista.</p>
-    <p>Detalles:</p>
+    <h1>¡Bienvenido/a, {{name}}!</h1>
+    <p>Gracias por registrarte en nuestra plataforma. Estamos muy emocionados de tenerte a bordo.</p>
+    <p>Detalles de tu cuenta:</p>
     <ul>
-        <li>Email: {{email}}</li>
-        <li>Fecha: {{date}}</li>
+        <li><strong>Email:</strong> {{email}}</li>
+        <li><strong>Fecha de registro:</strong> {{date}}</li>
     </ul>
+    <p>Si tienes alguna duda o necesitas ayuda, no dudes en contactarnos.</p>
+    <footer>
+        <p>Saludos, <br> El equipo de [Nombre de la Plataforma]</p>
+    </footer>
 </body>
 
 </html>
