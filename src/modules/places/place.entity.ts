@@ -26,7 +26,7 @@ export class Place {
     })
     position: Point;
 
-    @OneToOne(() => Organization, (organization) => organization.place)
+    @OneToOne(() => Organization, (organization) => organization.place, { nullable: true })
     organization: Organization
 
     @Column({ nullable: true })

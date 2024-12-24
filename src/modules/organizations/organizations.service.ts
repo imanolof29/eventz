@@ -22,45 +22,50 @@ export class OrganizationsService {
     ) { }
 
     async getOrganizations(pagination: PaginationDto): Promise<PaginationResponseDto<OrganizationDto>> {
-        const limit = pagination.limit ?? 10
-        const page = pagination.page ?? 0
+        try {
+            const limit = pagination.limit ?? 10
+            const page = pagination.page ?? 0
 
-        const [organizations, total] = await this.organizationRepository.findAndCount({
-            skip: limit * page,
-            take: limit,
-            relations: ['employees', 'place'],
-            order: {
-                "created": 'desc'
-            }
-        })
-
-        const totalPages = Math.ceil(total / limit)
-
-        const organizationDto = await Promise.all(
-            organizations.map(async (organization) => {
-                const logoImageKey = organization.logo;
-                let logoImageUrl: string | null = null;
-
-                if (logoImageKey) {
-                    logoImageUrl = await this.s3Service.getPresignedUrl(logoImageKey, 'logo.jpg');
+            const [organizations, total] = await this.organizationRepository.findAndCount({
+                skip: limit * page,
+                take: limit,
+                relations: ['employees', 'place'],
+                order: {
+                    "created": 'desc'
                 }
-                return new OrganizationDto({
-                    id: organization.id,
-                    name: organization.name,
-                    logo: logoImageUrl,
-                    placeId: organization.place.id,
-                    userId: organization.employees[0].id,
-                    created: organization.created
-                })
             })
-        )
 
-        return {
-            data: organizationDto,
-            total,
-            page: Math.floor(page / limit) + 1,
-            limit,
-            totalPages
+            const totalPages = Math.ceil(total / limit)
+
+            const organizationDto = await Promise.all(
+                organizations.map(async (organization) => {
+                    const logoImageKey = organization.logo;
+                    let logoImageUrl: string | null = null;
+
+                    if (logoImageKey) {
+                        logoImageUrl = await this.s3Service.getPresignedUrl(logoImageKey, 'logo.jpg');
+                    }
+                    return new OrganizationDto({
+                        id: organization.id,
+                        name: organization.name,
+                        logo: logoImageUrl,
+                        placeId: organization.place?.id ?? undefined,
+                        userId: organization.employees[0].id,
+                        created: organization.created
+                    })
+                })
+            )
+
+            return {
+                data: organizationDto,
+                total,
+                page: Math.floor(page / limit) + 1,
+                limit,
+                totalPages
+            }
+        } catch (error) {
+            console.log(error)
+            throw error
         }
 
     }
@@ -81,23 +86,31 @@ export class OrganizationsService {
             id: organization.id,
             name: organization.name,
             logo: logoImageUrl,
-            placeId: organization.place.id,
+            placeId: organization.place?.id ?? undefined,
             userId: organization.employees[0].id,
             created: organization.created
         })
     }
 
     async updateOrganization(id: string, dto: UpdateOrganizationDto) {
+        try {
+            const organization = await this.organizationRepository.findOne({
+                where: { id },
+                relations: ['employees', 'place'],
+            });
 
-        const organization = await this.organizationRepository.findOneBy({ id })
+            if (!organization) {
+                throw new NotFoundException("Organization not found");
+            }
 
-        if (!organization) {
-            throw new NotFoundException("Organization not found")
+            const place = await this.placeRepository.findOneByOrFail({ id: dto.placeId })
+            organization.place = place
+            Object.assign(organization, dto);
+            await this.organizationRepository.save(organization);
+        } catch (e) {
+            console.log(e)
+            throw e
         }
-
-        const updateOrganization = Object.assign(organization, dto)
-
-        await this.organizationRepository.save(updateOrganization)
     }
 
     async createOrganization(dto: CreateOrganizationDto) {

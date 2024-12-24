@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../users/user.entity";
 import { Event } from "../events/event.entity";
 import { Place } from "../places/place.entity";
@@ -22,6 +22,7 @@ export class Organization {
     events: Event[]
 
     @OneToOne(() => Place, (place) => place.organization, { nullable: true })
+    @JoinColumn()
     place: Place
 
     @Column({
