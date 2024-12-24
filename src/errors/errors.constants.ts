@@ -10,3 +10,5 @@ export const INCORRECT_PASSWORD = 'Incorrect password'
 export const OPTIONAL_INT_PIPE_NUMBER = '$key should be a number';
 export const USER_NOT_ACTIVE = 'User is not active';
 export const INVALID_PASSWORD = 'Invalid password';
+export const EMAIL_ALREADY_EXISTS = 'Email already exists';
+export const USERNAME_ALREADY_EXISTS = 'Username already exists';

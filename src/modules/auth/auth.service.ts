@@ -9,7 +9,7 @@ import { User } from 'src/modules/users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuth2Client } from 'google-auth-library';
-import { EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD, INVALID_PASSWORD, USER_NOT_ACTIVE, USER_NOT_FOUND } from 'src/errors/errors.constants';
+import { EMAIL_ALREADY_EXISTS, EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD, INVALID_PASSWORD, USER_NOT_ACTIVE, USER_NOT_FOUND, USERNAME_ALREADY_EXISTS } from 'src/errors/errors.constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
@@ -28,7 +28,16 @@ export class AuthService {
     }
 
     async createUser(properties: { dto: RegisterAuthDto }) {
-        const userCreated = await this.userRepository.create(properties.dto)
+        const emailExists = await this.userRepository.findOneBy({ email: properties.dto.email })
+        if (emailExists) {
+            throw new HttpException(EMAIL_ALREADY_EXISTS, HttpStatus.BAD_REQUEST)
+        }
+        const usernameExists = await this.userRepository.findOneBy({ username: properties.dto.username })
+        if (usernameExists) {
+            throw new HttpException(USERNAME_ALREADY_EXISTS, HttpStatus.BAD_REQUEST)
+        }
+        const hashPassword = await passwordHash.cryptPassword(properties.dto.password)
+        const userCreated = await this.userRepository.create({ ...properties.dto, password: hashPassword })
         await this.userRepository.save(userCreated)
     }
 
