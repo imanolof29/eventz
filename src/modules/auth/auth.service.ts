@@ -48,7 +48,7 @@ export class AuthService {
             throw new NotFoundException(EMAIL_DOES_NOT_EXIST)
         }
 
-        if (!userFound.deletedAt) {
+        if (userFound.deletedAt) {
             throw new ForbiddenException(USER_NOT_ACTIVE)
         }
 
