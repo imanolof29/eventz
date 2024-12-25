@@ -1,10 +1,8 @@
-import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GoogleOauthGuard } from './guards/google-oauth.guard';
-import { Response } from 'express';
 import { RefreshJwtGuard } from './guards/refresh-auth.guard';
 import { User } from 'src/modules/users/user.entity';
 import { GetUser } from './decorators/get-user.decorator';
