@@ -33,4 +33,8 @@ export class Purchase {
 
     @Column({ default: 1 })
     quantity: number;
+
+    @Column()
+    qrCode: string
+
 }

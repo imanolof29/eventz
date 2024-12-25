@@ -6,9 +6,11 @@ import { Event } from 'src/modules/events/event.entity';
 import { Purchase } from './purchase.entity';
 import { PurchaseDto } from './dto/purchase.dto';
 import { StripeService } from 'src/providers/stripe/stripe.service';
-import { USER_NOT_FOUND } from 'src/errors/errors.constants';
+import { PURCHASE_NOT_FOUND, USER_NOT_FOUND } from 'src/errors/errors.constants';
 import * as QRCode from 'qrcode';
 import { EmailService } from 'src/providers/email/email.service';
+import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class PurchasesService {
@@ -40,10 +42,11 @@ export class PurchasesService {
                 event,
                 purchaseDate: new Date()
             })
+            const qr = await QRCode.toDataURL(JSON.stringify({ purchaseId: purchase.id, eventId: event.id }))
+            purchase.qrCode = qr
             event.ticketsSold += quantity
             await this.eventRepository.save(event)
             await this.purchaseRepository.save(purchase)
-            const qr = await QRCode.toDataURL(JSON.stringify({ purchaseId: purchase.id, eventId: event.id }))
             await this.emailService.sendMail(
                 user.email,
                 'purchase-confirmation',
@@ -65,22 +68,71 @@ export class PurchasesService {
         }
     }
 
-    async getUserPurchases(properties: { userId: string }): Promise<PurchaseDto[]> {
-        const user = await this.userRepository.findBy({ id: properties.userId })
-        if (!user) {
-            throw new BadRequestException(USER_NOT_FOUND)
+    async getUserPurchases(properties: { pagination: PaginationDto, userId: string }): Promise<PaginationResponseDto<PurchaseDto>> {
+        try {
+            const user = await this.userRepository.findBy({ id: properties.userId })
+            if (!user) {
+                throw new BadRequestException(USER_NOT_FOUND)
+            }
+            const [purchases, total] = await this.purchaseRepository.findAndCount({
+                relations: ['buyer', 'event'],
+            })
+
+            const limit = properties.pagination.limit ?? 10
+            const page = properties.pagination.page ?? 0
+
+            const totalPages = Math.ceil(total / limit)
+
+            const purchasesDto = purchases.map((purchase) => new PurchaseDto({
+                id: purchase.id,
+                buyerId: purchase.buyer.id,
+                eventId: purchase.event.id,
+                purchaseDate: purchase.purchaseDate,
+                status: purchase.status,
+                quantity: purchase.quantity,
+                qrCode: purchase.qrCode
+            }))
+            return {
+                data: purchasesDto,
+                total,
+                page: Math.floor(page / limit) + 1,
+                limit,
+                totalPages
+            }
+        } catch (e) {
+            console.log(e)
+            throw e
         }
-        const purchases = await this.purchaseRepository.find({
-            relations: ['user', 'event'],
-        })
-        return purchases.map((purchase) => new PurchaseDto({
-            id: purchase.id,
-            buyerId: purchase.buyer.id,
-            eventId: purchase.event.id,
-            purchaseDate: purchase.purchaseDate,
-            status: purchase.status,
-            quantity: purchase.quantity
-        }))
+    }
+
+    async getPurchaseById(properties: { id: string, userId: string }): Promise<PurchaseDto> {
+        try {
+            const purchase = await this.purchaseRepository.findOne({
+                relations: ['buyer', 'event'],
+                where: {
+                    id: properties.id,
+                    buyer: {
+                        id: properties.userId
+                    }
+                }
+            })
+            if (!purchase) {
+                throw new BadRequestException(PURCHASE_NOT_FOUND)
+            }
+
+            return new PurchaseDto({
+                id: purchase.id,
+                buyerId: purchase.buyer.id,
+                eventId: purchase.event.id,
+                purchaseDate: purchase.purchaseDate,
+                status: purchase.status,
+                quantity: purchase.quantity,
+                qrCode: purchase.qrCode
+            })
+        } catch (err) {
+            console.log(err)
+            throw err
+        }
     }
 
 }
