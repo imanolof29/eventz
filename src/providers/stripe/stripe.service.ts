@@ -13,11 +13,12 @@ export class StripeService {
         )
     }
 
-    async paymentIntent(amount: number, currency: string) {
+    async paymentIntent(properties: { amount: number, currency: string, clientEmail: string }) {
         try {
             const paymentIntent = await this.stripe.paymentIntents.create({
-                amount: amount,
-                currency,
+                amount: properties.amount,
+                currency: properties.currency,
+                receipt_email: properties.clientEmail,
             })
             return { clientSecret: paymentIntent.client_secret }
         } catch (error) {
