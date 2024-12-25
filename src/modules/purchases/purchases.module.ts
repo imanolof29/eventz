@@ -7,9 +7,15 @@ import { User } from 'src/modules/users/user.entity';
 import { Event } from 'src/modules/events/event.entity'
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { StripeModule } from 'src/providers/stripe/stripe.module';
+import { EmailModule } from 'src/providers/email/email.module';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([Purchase, Event, User]), StripeModule],
+  imports: [
+    AuthModule,
+    TypeOrmModule.forFeature([Purchase, Event, User]),
+    StripeModule,
+    EmailModule
+  ],
   providers: [PurchasesService],
   controllers: [PurchasesController]
 })

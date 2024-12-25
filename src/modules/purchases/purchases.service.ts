@@ -7,6 +7,8 @@ import { Purchase } from './purchase.entity';
 import { PurchaseDto } from './dto/purchase.dto';
 import { StripeService } from 'src/providers/stripe/stripe.service';
 import { USER_NOT_FOUND } from 'src/errors/errors.constants';
+import * as QRCode from 'qrcode';
+import { EmailService } from 'src/providers/email/email.service';
 
 @Injectable()
 export class PurchasesService {
@@ -15,7 +17,8 @@ export class PurchasesService {
         @InjectRepository(Event) private eventRepository: Repository<Event>,
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(Purchase) private purchaseRepository: Repository<Purchase>,
-        private readonly stripeService: StripeService
+        private readonly stripeService: StripeService,
+        private readonly emailService: EmailService
     ) { }
 
     async purchase(userId: string, eventId: string, quantity: number): Promise<any> {
@@ -31,7 +34,7 @@ export class PurchasesService {
             // if (event.ticketsSold + quantity > event.ticketLimit) {
             //     throw new BadRequestException('Ticket limit reached')
             // }
-            const payment = await this.stripeService.paymentIntent({ amount: event.price * quantity, currency: 'eur', clientEmail: user.email })
+            //const payment = await this.stripeService.paymentIntent({ amount: event.price * quantity, currency: 'eur', clientEmail: user.email })
             const purchase = this.purchaseRepository.create({
                 buyer: user,
                 event,
@@ -40,7 +43,22 @@ export class PurchasesService {
             event.ticketsSold += quantity
             await this.eventRepository.save(event)
             await this.purchaseRepository.save(purchase)
-            return payment
+            const qr = await QRCode.toDataURL(JSON.stringify({ purchaseId: purchase.id, eventId: event.id }))
+            await this.emailService.sendMail(
+                user.email,
+                'purchase-confirmation',
+                {
+                    name: user.firstName,
+                    email: user.email,
+                    purchaseId: purchase.id,
+                    eventName: event.name,
+                    ticketsBought: quantity,
+                    eventDate: event.startDate,
+                    amount: event.price * quantity,
+                    qrImage: qr
+                }
+            )
+            return ""
         } catch (error) {
             console.log(error)
             throw error
