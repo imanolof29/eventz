@@ -11,6 +11,7 @@ import * as QRCode from 'qrcode';
 import { EmailService } from 'src/providers/email/email.service';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { EventDto } from '../events/dto/event.dto';
 
 @Injectable()
 export class PurchasesService {
@@ -86,7 +87,14 @@ export class PurchasesService {
             const purchasesDto = purchases.map((purchase) => new PurchaseDto({
                 id: purchase.id,
                 buyerId: purchase.buyer.id,
-                eventId: purchase.event.id,
+                event: new EventDto({
+                    id: purchase.event.id,
+                    name: purchase.event.name,
+                    description: purchase.event.description,
+                    created: purchase.event.created,
+                    price: purchase.event.price,
+                    ticketsSold: purchase.event.ticketsSold
+                }),
                 purchaseDate: purchase.purchaseDate,
                 status: purchase.status,
                 quantity: purchase.quantity,
@@ -123,7 +131,14 @@ export class PurchasesService {
             return new PurchaseDto({
                 id: purchase.id,
                 buyerId: purchase.buyer.id,
-                eventId: purchase.event.id,
+                event: new EventDto({
+                    id: purchase.event.id,
+                    name: purchase.event.name,
+                    description: purchase.event.description,
+                    created: purchase.event.created,
+                    price: purchase.event.price,
+                    ticketsSold: purchase.event.ticketsSold
+                }),
                 purchaseDate: purchase.purchaseDate,
                 status: purchase.status,
                 quantity: purchase.quantity,
