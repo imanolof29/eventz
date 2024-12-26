@@ -42,4 +42,12 @@ export class PurchasesController {
         return this.purchaseService.getPurchaseById({ id, userId: user.id })
     }
 
+    @Post('check-purchase')
+    async checkPurchaseIsValid(
+        @Param('buyerId') buyerId: string,
+        @Param('purchaseId') purchaseId: string
+    ): Promise<void> {
+        return this.purchaseService.checkPurchaseIsValid({ purchaseId, buyerId })
+    }
+
 }

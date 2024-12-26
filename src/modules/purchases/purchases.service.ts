@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/modules/users/user.entity';
 import { Repository } from 'typeorm';
@@ -11,6 +11,7 @@ import * as QRCode from 'qrcode';
 import { EmailService } from 'src/providers/email/email.service';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { generateUUID } from 'src/utils/uuid.utility';
 
 @Injectable()
 export class PurchasesService {
@@ -38,11 +39,13 @@ export class PurchasesService {
             // }
             //const payment = await this.stripeService.paymentIntent({ amount: event.price * quantity, currency: 'eur', clientEmail: user.email })
             const purchase = this.purchaseRepository.create({
+                id: generateUUID(),
                 buyer: user,
                 event,
                 purchaseDate: new Date()
             })
-            const qr = await QRCode.toDataURL(JSON.stringify({ purchaseId: purchase.id, eventId: event.id }))
+            console.log(purchase.id)
+            const qr = await QRCode.toDataURL(JSON.stringify({ purchaseId: purchase.id, buyerId: user.id, eventId: event.id }))
             purchase.qrCode = qr
             event.ticketsSold += quantity
             await this.eventRepository.save(event)
@@ -133,6 +136,22 @@ export class PurchasesService {
             console.log(err)
             throw err
         }
+    }
+
+    async checkPurchaseIsValid(properties: { purchaseId: string, buyerId: string }): Promise<void> {
+        const purchase = await this.purchaseRepository.findOne({
+            where: {
+                id: properties.purchaseId,
+                buyer: {
+                    id: properties.buyerId
+                }
+            }
+        })
+        if (!purchase) {
+            throw new NotFoundException(PURCHASE_NOT_FOUND)
+        }
+        //TODO: Validar fecha
+        return Promise.resolve()
     }
 
 }
