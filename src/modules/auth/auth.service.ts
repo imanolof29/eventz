@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { passwordHash } from 'src/utils/password.utility';
 import { LoginAuthDto } from './dto/login-auth.dto';
@@ -12,6 +12,8 @@ import { OAuth2Client } from 'google-auth-library';
 import { EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD } from 'src/errors/errors.constants';
 import { ROLE_PERMISSIONS } from './role';
 import { UserRole } from 'aws-sdk/clients/workmail';
+import { EMAIL_ALREADY_EXISTS, EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD, INVALID_PASSWORD, USER_NOT_ACTIVE, USER_NOT_FOUND, USERNAME_ALREADY_EXISTS } from 'src/errors/errors.constants';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +31,16 @@ export class AuthService {
     }
 
     async createUser(properties: { dto: RegisterAuthDto }) {
-        const userCreated = await this.userRepository.create(properties.dto)
+        const emailExists = await this.userRepository.findOneBy({ email: properties.dto.email })
+        if (emailExists) {
+            throw new HttpException(EMAIL_ALREADY_EXISTS, HttpStatus.BAD_REQUEST)
+        }
+        const usernameExists = await this.userRepository.findOneBy({ username: properties.dto.username })
+        if (usernameExists) {
+            throw new HttpException(USERNAME_ALREADY_EXISTS, HttpStatus.BAD_REQUEST)
+        }
+        const hashPassword = await passwordHash.cryptPassword(properties.dto.password)
+        const userCreated = await this.userRepository.create({ ...properties.dto, password: hashPassword })
         await this.userRepository.save(userCreated)
     }
 
@@ -38,6 +49,10 @@ export class AuthService {
 
         if (!userFound) {
             throw new NotFoundException(EMAIL_DOES_NOT_EXIST)
+        }
+
+        if (userFound.deletedAt) {
+            throw new ForbiddenException(USER_NOT_ACTIVE)
         }
 
         const isPasswordValid = await passwordHash.comparePassword(properties.dto.password, userFound.password)
@@ -63,7 +78,7 @@ export class AuthService {
 
     async refreshToken(properties: { userId: string }): Promise<AuthResponseDto> {
         const user = await this.userRepository.findOneBy({ id: properties.userId })
-        if (!user) throw new UnauthorizedException('User not found')
+        if (!user) throw new UnauthorizedException(USER_NOT_FOUND)
         const payload = {
             id: user.id,
             name: user.firstName
@@ -113,6 +128,14 @@ export class AuthService {
 
     private getPermissions(role: UserRole): Promise<void> {
         return ROLE_PERMISSIONS[role]
+    }
+    async changePassword(properties: { userId: string, dto: ChangePasswordDto }) {
+        const user = await this.userRepository.findOneBy({ id: properties.userId })
+        if (!user) throw new NotFoundException(USER_NOT_FOUND)
+        const isPasswordValid = await passwordHash.comparePassword(properties.dto.oldPassword, user.password)
+        if (!isPasswordValid) throw new HttpException(INVALID_PASSWORD, HttpStatus.BAD_REQUEST)
+        user.password = await passwordHash.cryptPassword(properties.dto.newPassword)
+        await this.userRepository.save(user)
     }
 
 

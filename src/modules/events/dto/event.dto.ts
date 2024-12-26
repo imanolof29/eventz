@@ -11,9 +11,6 @@ export class EventDto {
     @ApiProperty({ example: 'Fiestas en donosti', description: 'Event description' })
     description: string
 
-    @ApiProperty({ example: '19b50ab0-ef3f-4428-a152-d2b3ae11d710', description: 'User id' })
-    userId: string
-
     @ApiProperty({ example: new Date(), description: 'Event created at' })
     created: Date
 
@@ -30,7 +27,6 @@ export class EventDto {
         id: string;
         name: string;
         description: string;
-        userId: string
         created: Date
         price?: number
         ticketLimit?: number
@@ -39,7 +35,6 @@ export class EventDto {
         this.id = properties.id
         this.name = properties.name
         this.description = properties.description
-        this.userId = properties.userId
         this.created = properties.created
         this.price = properties.price
         this.ticketLimit = properties.ticketLimit

@@ -1,15 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { EventDto } from './dto/event.dto';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './event.entity';
-import { In, Point, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Category } from 'src/modules/categories/category.entity';
 import { User } from 'src/modules/users/user.entity';
 import { EVENT_NOT_FOUND } from 'src/errors/errors.constants';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { Organization } from '../organizations/organization.entity';
 
 @Injectable()
 export class EventsService {
@@ -17,6 +18,7 @@ export class EventsService {
     constructor(
         @InjectRepository(Event) private eventRepository: Repository<Event>,
         @InjectRepository(Category) private categoryRepository: Repository<Category>,
+        @InjectRepository(Organization) private readonly organizationRepository: Repository<Organization>,
         @InjectRepository(User) private userRepository: Repository<User>,
     ) { }
 
@@ -46,8 +48,6 @@ export class EventsService {
                     id: event.id,
                     name: event.name,
                     description: event.description,
-                    //TODO: SOLUCION TEMPORAL
-                    userId: "",
                     created: event.created,
                     price: event.price,
                     ticketLimit: event.ticketLimit,
@@ -88,19 +88,30 @@ export class EventsService {
 
     async createEvent(properties: { dto: CreateEventDto, userId: string }) {
         try {
+            const user = await this.userRepository.findOneByOrFail({ id: properties.userId })
+            const organizer = await this.organizationRepository.findOne({
+                where: {
+                    employees: {
+                        id: user.id
+                    },
+                },
+                relations: ['place']
+            })
+            if (!organizer.place) {
+                throw new BadRequestException("Organization does not have a place")
+            }
             const categories = await this.categoryRepository.find({ where: { id: In(properties.dto.categoryIds) } })
-            const user = await this.userRepository.findOneBy({ id: properties.userId })
             const newEvent = await this.eventRepository.create({
                 name: properties.dto.name,
                 description: properties.dto.description,
-                organizer: user,
+                organizer,
                 categories,
                 price: properties.dto.price,
                 ticketLimit: properties.dto.ticketLimit,
                 ticketsSold: properties.dto.ticketsSold
             })
 
-            await this.eventRepository.save(newEvent)
+            return await this.eventRepository.save(newEvent)
         } catch (error) {
             console.log(error)
             throw error
@@ -108,27 +119,30 @@ export class EventsService {
     }
 
     async getEventById(properties: { id: string }) {
-        const event = await this.eventRepository.findOne({
-            where: {
-                id: properties.id
-            }, relations: ['user']
-        })
+        try {
+            const event = await this.eventRepository.findOne({
+                where: {
+                    id: properties.id
+                }
+            })
 
-        if (!event) {
-            throw new NotFoundException(EVENT_NOT_FOUND)
+            if (!event) {
+                throw new NotFoundException(EVENT_NOT_FOUND)
+            }
+
+            return new EventDto({
+                id: event.id,
+                name: event.name,
+                description: event.description,
+                created: event.created,
+                price: event.price,
+                ticketLimit: event.ticketLimit,
+                ticketsSold: event.ticketsSold
+            })
+        } catch (error) {
+            console.log(error)
+            throw error
         }
-
-        return new EventDto({
-            id: event.id,
-            name: event.name,
-            description: event.description,
-            userId: event.organizer.id,
-            created: event.created,
-            price: event.price,
-            ticketLimit: event.ticketLimit,
-            ticketsSold: event.ticketsSold
-        })
-
     }
 
     async updateEvent(properties: { id: string; dto: UpdateEventDto }) {

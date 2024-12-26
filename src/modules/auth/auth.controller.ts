@@ -7,6 +7,7 @@ import { RefreshJwtGuard } from './guards/refresh-auth.guard';
 import { User } from 'src/modules/users/user.entity';
 import { GetUser } from './decorators/get-user.decorator';
 import { Public } from './decorators/public.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -52,6 +53,17 @@ export class AuthController {
     @ApiResponse({ status: 500, description: 'Internal server error' })
     async refreshToken(@GetUser() user: User) {
         return this.authService.refreshToken({ userId: user.id })
+    }
+
+    @Post('change-password')
+    @ApiOperation({ summary: 'Change user password' })
+    @ApiBody({ type: ChangePasswordDto })
+    @ApiResponse({ status: 200, description: 'Password changed' })
+    @ApiResponse({ status: 400, description: 'Bad request' })
+    @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+    @ApiResponse({ status: 500, description: 'Internal server error' })
+    async changePassword(@GetUser() user: User, @Body() dto: ChangePasswordDto) {
+        return this.authService.changePassword({ userId: user.id, dto })
     }
 
 }

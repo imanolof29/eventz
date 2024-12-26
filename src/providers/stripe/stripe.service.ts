@@ -13,13 +13,14 @@ export class StripeService {
         )
     }
 
-    async paymentIntent(amount: number, currency: string) {
+    async paymentIntent(properties: { amount: number, currency: string, clientEmail: string }) {
         try {
             const paymentIntent = await this.stripe.paymentIntents.create({
-                amount: amount * 100,
-                currency,
+                amount: properties.amount,
+                currency: properties.currency,
+                receipt_email: properties.clientEmail,
             })
-            return paymentIntent
+            return { clientSecret: paymentIntent.client_secret }
         } catch (error) {
             console.log(error)
             throw new BadRequestException("Algo salio mal")

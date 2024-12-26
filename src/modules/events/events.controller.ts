@@ -25,7 +25,7 @@ export class EventsController {
     @ApiResponse({ status: 403, description: 'Not permission' })
     @CheckPermissions(MODULES.events, PERMISSIONS.add)
     async createEvent(@Body() dto: CreateEventDto, @GetUser() user: User): Promise<void> {
-        return this.eventsService.createEvent({ dto, userId: user.id })
+        await this.eventsService.createEvent({ dto, userId: user.id })
     }
 
     @Get('find')

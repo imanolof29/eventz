@@ -1,4 +1,4 @@
-import { Body, Controller, Get, MaxFileSizeValidator, ParseFilePipe, Post, Query, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Query, UploadedFile } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrganizationsService } from './organizations.service';
 import { Auth } from '../auth/decorators/auth.decorator';
@@ -6,6 +6,7 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { OrganizationDto } from './dto/organization.dto';
+import { UpdateOrganizationDto } from './dto/update-organization.dto';
 
 @ApiTags('organizations')
 @Controller('organizations')
@@ -30,6 +31,21 @@ export class OrganizationsController {
         @Query() paginationDto: PaginationDto
     ): Promise<PaginationResponseDto<OrganizationDto>> {
         return await this.organizationService.getOrganizations(paginationDto)
+    }
+
+    @Get('pick/:id')
+    @Auth()
+    async pickOrganization(@Param('id') id: string): Promise<OrganizationDto> {
+        return await this.organizationService.getOrganizationById(id)
+    }
+
+    @Put('update/:id')
+    @Auth()
+    async updateOrganization(
+        @Param('id') id: string,
+        @Body() dto: UpdateOrganizationDto
+    ): Promise<void> {
+        return await this.organizationService.updateOrganization(id, dto)
     }
 
     @Post('logo')

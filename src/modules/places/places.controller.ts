@@ -34,9 +34,10 @@ export class PlacesController {
         @Query('lat') lat: number,
         @Query('lon') lon: number,
         @Query('radius') radius: number,
+        @Query('query') query: string,
         @Query() paginationDto: PaginationDto
     ) {
-        return this.placesService.getPlacesNearPosition({ lat, lon, radius, pagination: paginationDto })
+        return this.placesService.getPlacesNearPosition({ lat, lon, radius, query, pagination: paginationDto })
     }
 
     @Get('pick/:id')

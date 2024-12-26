@@ -67,6 +67,9 @@ export class User {
     })
     organization: Organization
 
+    @Column({ type: 'timestamp', nullable: true })
+    deletedAt: Date | null
+
     @BeforeInsert()
     async hashPassword() {
         if (!this.password) return

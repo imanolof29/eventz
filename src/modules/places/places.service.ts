@@ -55,7 +55,7 @@ export class PlacesService {
         }
     }
 
-    async getPlacesNearPosition(properties: { lat: number, lon: number, radius: number, pagination: PaginationDto }) {
+    async getPlacesNearPosition(properties: { lat: number, lon: number, radius: number, query?: string, pagination: PaginationDto }) {
         const radiusInDegrees = properties.radius / 111000;
 
         // Valores predeterminados de paginación
@@ -80,6 +80,9 @@ export class PlacesService {
                 )
                 `,
             )
+            .andWhere(properties.query ? 'places.name ILIKE :query' : '1=1', {
+                query: `%${properties.query}%`,
+            })
             .skip(limit * page) // Paginación: saltar los registros ya cubiertos
             .take(limit) // Paginación: limitar los registros por página
             .getManyAndCount(); // Obtener tanto los registros como el total
