@@ -7,6 +7,8 @@ import { PlaceDto } from './dto/place.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserRole } from '../users/user.entity';
+import { LocationDto } from './dto/location.dto';
+import axios from 'axios';
 
 
 @ApiTags('places')
@@ -65,6 +67,35 @@ export class PlacesController {
     @Auth(UserRole.ADMIN)
     async deleteData() {
         return await this.placesService.deleteAllData()
+    }
+
+    @Get('geocoding')
+    @Auth()
+    async getLocation(
+        @Query('lat') lat: number,
+        @Query('lon') lon: number,
+    ): Promise<LocationDto> {
+        try {
+            const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+            const location = response.data.address.city ||
+                response.data.address.town ||
+                response.data.address.village ||
+                response.data.address.municipality ||
+                response.data.address.suburb ||
+                response.data.address.hamlet ||
+                response.data.address.locality ||
+                response.data.address.county ||
+                'Ubicación desconocida';
+            const data = new LocationDto({
+                latitude: response.data.lat,
+                longitude: response.data.lon,
+                name: location
+            })
+            return data
+        } catch (err) {
+            console.log(err)
+            throw err
+        }
     }
 
 }
