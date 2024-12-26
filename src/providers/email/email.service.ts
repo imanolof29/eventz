@@ -2,12 +2,22 @@ import { BadRequestException, Injectable, InternalServerErrorException } from "@
 import { MailerService } from "@nestjs-modules/mailer";
 import { ERROR_SENDING_EMAIL, INSUFFICIENT_DATA } from "src/errors/errors.constants";
 
-type EmailTemplate = 'welcome' | 'reset-password' | 'verify-email';
+type EmailTemplate = 'welcome' | 'reset-password' | 'verify-email' | 'purchase-confirmation';
 
 export interface EmailTemplateParams {
     'welcome': { name: string; email: string; date: Date };
     'reset-password': { name: string; resetLink: string };
     'verify-email': { name: string; email: string };
+    'purchase-confirmation': {
+        name: string;
+        email: string;
+        purchaseId: string;
+        eventName: string;
+        ticketsBought: number;
+        eventDate: Date;
+        amount: number;
+        qrImage: string;
+    };
 }
 
 @Injectable()
@@ -42,6 +52,7 @@ export class EmailService {
             'welcome': '¡Bienvenido/a a nuestra plataforma!',
             'reset-password': 'Restablece tu contraseña',
             'verify-email': 'Por favor verifica tu email',
+            'purchase-confirmation': '¡Gracias por comprar entradas! Aquí están tus tickets.',
         };
 
         return subjects[template] || 'Asunto no especificado';
