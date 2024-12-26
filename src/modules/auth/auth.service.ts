@@ -9,7 +9,6 @@ import { User } from 'src/modules/users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuth2Client } from 'google-auth-library';
-import { EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD } from 'src/errors/errors.constants';
 import { ROLE_PERMISSIONS } from './role';
 import { UserRole } from 'aws-sdk/clients/workmail';
 import { EMAIL_ALREADY_EXISTS, EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD, INVALID_PASSWORD, USER_NOT_ACTIVE, USER_NOT_FOUND, USERNAME_ALREADY_EXISTS } from 'src/errors/errors.constants';

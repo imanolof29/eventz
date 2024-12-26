@@ -38,6 +38,7 @@ export class AuthController {
     }
 
     @Post('google')
+    @Public()
     @ApiOperation({ summary: 'Login with google' })
     @ApiResponse({ status: 201, description: 'Google login OK' })
     @ApiResponse({ status: 500, description: 'Internal server error' })
@@ -47,6 +48,7 @@ export class AuthController {
 
     @UseGuards(RefreshJwtGuard)
     @Post('refresh')
+    @Public()
     @ApiResponse({ status: 200, description: 'Refresh token successful' })
     @ApiResponse({ status: 400, description: 'Bad request' })
     @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
