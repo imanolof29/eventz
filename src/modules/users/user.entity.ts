@@ -6,6 +6,7 @@ import { Purchase } from 'src/modules/purchases/purchase.entity'
 import { DeviceToken } from './deviceToken.entity'
 import { Notification } from '../notifications/notification.entity'
 import { Organization } from '../organizations/organization.entity'
+import { Post } from '../posts/post.entity'
 
 export enum UserRole {
     ADMIN = 'ADMIN',
@@ -60,7 +61,10 @@ export class User {
     tokens: DeviceToken[]
 
     @OneToMany(() => Notification, notification => notification.user)
-    notifications: Notification
+    notifications: Notification[]
+
+    @OneToMany(() => Post, post => post.user)
+    posts: Post[]
 
     @ManyToOne(() => Organization, organization => organization.employees, {
         nullable: true
