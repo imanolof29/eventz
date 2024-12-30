@@ -7,7 +7,7 @@ import { PaginationDto } from "../common/dto/pagination.dto";
 import { PostDto } from "./dto/post.dto";
 import { S3Service } from "src/providers/s3/s3.service";
 import { User } from "../users/user.entity";
-import { PLACE_NOT_FOUND, USER_NOT_FOUND } from "src/errors/errors.constants";
+import { PLACE_NOT_FOUND, POST_NOT_FOUND, USER_NOT_FOUND } from "src/errors/errors.constants";
 
 @Injectable()
 export class PostsService {
@@ -69,6 +69,32 @@ export class PostsService {
             photo: result.Key
         })
         await this.postRepository.save(post)
+    }
+
+    async deletePost(properties: {
+        userId: string,
+        placeId: string,
+        postId: string
+    }): Promise<void> {
+        const user = await this.userRepository.findOneBy({ id: properties.userId })
+        if (!user) {
+            throw new NotFoundException(USER_NOT_FOUND)
+        }
+        const place = await this.placeRepository.findOneBy({ id: properties.placeId })
+        if (!place) {
+            throw new NotFoundException(PLACE_NOT_FOUND)
+        }
+        const post = await this.postRepository.findOne({
+            where: {
+                user,
+                place
+            }
+        })
+        if (!post) {
+            throw new NotFoundException(POST_NOT_FOUND)
+        }
+
+        await this.postRepository.delete(post)
     }
 
 }

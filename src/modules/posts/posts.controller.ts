@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Post, UploadedFile, ParseFilePipe, MaxFileSizeValidator } from "@nestjs/common";
+import { Controller, Get, Param, Query, Post, UploadedFile, ParseFilePipe, MaxFileSizeValidator, Delete } from "@nestjs/common";
 import { PaginationResponseDto } from "../common/dto/pagination.response.dto";
 import { PostDto } from "./dto/post.dto";
 import { PostsService } from "./posts.service";
@@ -7,6 +7,7 @@ import { GetUser } from "../auth/decorators/get-user.decorator";
 import { User } from "../users/user.entity";
 import { ApiBadRequestResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { Auth } from "../auth/decorators/auth.decorator";
+import { FORBIDDEN_EXCEPTION, UNAUTHORIZED_EXCEPTION } from "src/errors/errors.constants";
 
 @ApiTags('posts')
 @Controller('places/:placeId/posts')
@@ -46,6 +47,20 @@ export class PostsController {
         @GetUser() user: User
     ): Promise<void> {
         return this.postsService.createPost({ placeId, userId: user.id, file })
+    }
+
+    @Delete('posts/:postId')
+    @ApiOperation({ summary: 'Delete post of place' })
+    @ApiOkResponse({ description: "Post deleted successfully" })
+    @ApiUnauthorizedResponse({ description: FORBIDDEN_EXCEPTION })
+    @ApiForbiddenResponse({ description: UNAUTHORIZED_EXCEPTION })
+    @Auth()
+    async deletePlacePost(
+        @GetUser() user: User,
+        @Param('placeId') placeId: string,
+        @Param('postId') postId: string
+    ): Promise<void> {
+        return this.postsService.deletePost({ userId: user.id, placeId, postId })
     }
 
 }
