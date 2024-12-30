@@ -82,9 +82,9 @@ export class CommentService {
 
     }
 
-    async createComment(properties: { dto: CreateCommentDto, userId: string }): Promise<void> {
+    async createComment(properties: { dto: CreateCommentDto, placeId: string, userId: string }): Promise<void> {
         const user = await this.userRepository.findOneBy({ id: properties.userId })
-        const place = await this.placeRepository.findOneBy({ id: properties.dto.placeId })
+        const place = await this.placeRepository.findOneBy({ id: properties.placeId })
         const newComment = await this.commentRepository.create({
             user,
             place,

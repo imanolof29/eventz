@@ -18,6 +18,7 @@ import { User } from 'src/modules/users/user.entity';
 import { Auth } from 'src/modules/auth/decorators/auth.decorator';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
+import { FORBIDDEN_EXCEPTION, UNAUTHORIZED_EXCEPTION } from 'src/errors/errors.constants';
 
 @ApiTags('places/:placeId/comments')
 @Controller('comments')
@@ -45,15 +46,19 @@ export class CommentController {
     @ApiResponse({ status: 401, description: 'Not authenticated' })
     @ApiResponse({ status: 403, description: 'Not permission' })
     @Auth()
-    async createComment(@Body() dto: CreateCommentDto, @GetUser() user: User): Promise<void> {
-        return this.commentService.createComment({ dto, userId: user.id })
+    async createComment(
+        @Param('placeId') placeId: string,
+        @Body() dto: CreateCommentDto,
+        @GetUser() user: User
+    ): Promise<void> {
+        return this.commentService.createComment({ dto, placeId, userId: user.id })
     }
 
     @Delete('delete/:id')
     @ApiOperation({ summary: 'Delete comment' })
     @ApiOkResponse({ description: "Comment deleted" })
-    @ApiUnauthorizedResponse({ description: 'Not authenticated' })
-    @ApiForbiddenResponse({ description: 'Not permission' })
+    @ApiUnauthorizedResponse({ description: UNAUTHORIZED_EXCEPTION })
+    @ApiForbiddenResponse({ description: FORBIDDEN_EXCEPTION })
     @ApiNotFoundResponse({ description: 'Not found' })
     @ApiResponse({ status: 500, description: 'Server error' })
     @Auth()

@@ -17,7 +17,7 @@ export class PostsController {
         private readonly postsService: PostsService
     ) { }
 
-    @Get('posts')
+    @Get('find')
     @ApiOperation({ summary: 'Get place posts' })
     @ApiOkResponse({ description: 'Get place posts', type: PostDto, isArray: true })
     @ApiBadRequestResponse({ description: "Invalid data provided" })
@@ -31,7 +31,7 @@ export class PostsController {
         return this.postsService.getPlacePosts({ pagination: paginationDto, placeId })
     }
 
-    @Post('posts')
+    @Post('create')
     @ApiOperation({ summary: 'Create post of place' })
     @ApiOkResponse({ description: "Post created successfully" })
     @ApiUnauthorizedResponse({ description: 'Not authenticated' })
@@ -49,7 +49,7 @@ export class PostsController {
         return this.postsService.createPost({ placeId, userId: user.id, file })
     }
 
-    @Delete('posts/:postId')
+    @Delete('delete/:postId')
     @ApiOperation({ summary: 'Delete post of place' })
     @ApiOkResponse({ description: "Post deleted successfully" })
     @ApiUnauthorizedResponse({ description: FORBIDDEN_EXCEPTION })
