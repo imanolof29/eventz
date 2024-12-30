@@ -39,9 +39,12 @@ export class PostsService {
 
         const totalPages = Math.ceil(total / limit)
 
-        const postsDto = posts.map((post) => new PostDto({
-            id: post.id,
-            photo: post.photo
+        const postsDto = await Promise.all(posts.map(async (post) => {
+            const photoUrl = await this.s3Service.getPresignedUrl(post.photo, 'post.jpg')
+            return new PostDto({
+                id: post.id,
+                photo: photoUrl
+            })
         }))
 
         return {
