@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Post, UploadedFile, ParseFilePipe, MaxFileSizeValidator, Delete } from "@nestjs/common";
+import { Controller, Get, Param, Query, Post, UploadedFile, ParseFilePipe, MaxFileSizeValidator, Delete, UseInterceptors } from "@nestjs/common";
 import { PaginationResponseDto } from "../common/dto/pagination.response.dto";
 import { PostDto } from "./dto/post.dto";
 import { PostsService } from "./posts.service";
@@ -8,6 +8,7 @@ import { User } from "../users/user.entity";
 import { ApiBadRequestResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { Auth } from "../auth/decorators/auth.decorator";
 import { FORBIDDEN_EXCEPTION, UNAUTHORIZED_EXCEPTION } from "src/errors/errors.constants";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiTags('places/:placeId/posts')
 @Controller('places/:placeId/posts')
@@ -36,17 +37,18 @@ export class PostsController {
     @ApiOkResponse({ description: "Post created successfully" })
     @ApiUnauthorizedResponse({ description: 'Not authenticated' })
     @ApiForbiddenResponse({ description: 'Not permission' })
+    @UseInterceptors(FileInterceptor('file'))
     @Auth()
     async createPlacePost(
         @UploadedFile(
             new ParseFilePipe({
-                validators: [new MaxFileSizeValidator({ maxSize: 100000000000000 })],
+                validators: [new MaxFileSizeValidator({ maxSize: 10000000000000000000000 })],
             }),
         ) file: Express.Multer.File,
         @Param('placeId') placeId: string,
         @GetUser() user: User
     ): Promise<void> {
-        return this.postsService.createPost({ placeId, userId: user.id, file })
+        return await this.postsService.createPost({ placeId, userId: user.id, file })
     }
 
     @Delete('delete/:postId')
