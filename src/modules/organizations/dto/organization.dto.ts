@@ -1,9 +1,22 @@
+import { ApiProperty } from "@nestjs/swagger"
+
 export class OrganizationDto {
+    @ApiProperty({ description: "Organization's id" })
     id: string
+
+    @ApiProperty({ description: "Organization's name" })
     name: string
+
+    @ApiProperty({ description: "User" })
     userId: string
+
+    @ApiProperty({ description: "Organization's location/place" })
     placeId: string
+
+    @ApiProperty({ description: "Organization's logo" })
     logo?: string
+
+    @ApiProperty({ description: "Organization's creation date" })
     created: Date
 
     constructor(properties: {
