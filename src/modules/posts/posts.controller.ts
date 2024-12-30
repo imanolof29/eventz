@@ -9,7 +9,7 @@ import { ApiBadRequestResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperatio
 import { Auth } from "../auth/decorators/auth.decorator";
 import { FORBIDDEN_EXCEPTION, UNAUTHORIZED_EXCEPTION } from "src/errors/errors.constants";
 
-@ApiTags('posts')
+@ApiTags('places/:placeId/posts')
 @Controller('places/:placeId/posts')
 export class PostsController {
 
@@ -40,7 +40,7 @@ export class PostsController {
     async createPlacePost(
         @UploadedFile(
             new ParseFilePipe({
-                validators: [new MaxFileSizeValidator({ maxSize: 10000000 })],
+                validators: [new MaxFileSizeValidator({ maxSize: 100000000000000 })],
             }),
         ) file: Express.Multer.File,
         @Param('placeId') placeId: string,

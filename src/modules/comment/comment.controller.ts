@@ -21,7 +21,7 @@ import { PaginationResponseDto } from '../common/dto/pagination.response.dto';
 import { FORBIDDEN_EXCEPTION, UNAUTHORIZED_EXCEPTION } from 'src/errors/errors.constants';
 
 @ApiTags('places/:placeId/comments')
-@Controller('comments')
+@Controller('places/:placeId/comments')
 export class CommentController {
 
     constructor(private readonly commentService: CommentService) { }
