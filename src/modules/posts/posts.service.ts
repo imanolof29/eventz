@@ -19,17 +19,21 @@ export class PostsService {
         private readonly s3Service: S3Service
     ) { }
 
-    async getPlacePosts(properties: { pagination: PaginationDto, id: string }) {
+    async getPlacePosts(properties: { pagination: PaginationDto, placeId: string }) {
         const limit = properties.pagination.limit ?? 10
         const page = properties.pagination.page ?? 0
+
+        const place = await this.placeRepository.findOneBy({ id: properties.placeId })
+
+        if (!place) {
+            throw new NotFoundException(PLACE_NOT_FOUND)
+        }
 
         const [posts, total] = await this.postRepository.findAndCount({
             skip: limit * page,
             take: limit,
             where: {
-                place: {
-                    id: properties.id
-                }
+                place
             }
         })
 
