@@ -10,7 +10,7 @@ export class PostLike {
     @ManyToOne(() => User, user => user.likes)
     user: User
 
-    @ManyToOne(() => post => post.likes)
+    @ManyToOne(() => Post, post => post.likes)
     post: Post
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
