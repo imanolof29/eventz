@@ -1,4 +1,8 @@
+import { ApiProperty } from "@nestjs/swagger";
+
 export class CreateCommentDto {
-    placeId: string
+    @ApiProperty({
+        description: "New comment content"
+    })
     content: string
 }

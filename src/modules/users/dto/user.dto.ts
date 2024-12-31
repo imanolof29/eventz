@@ -1,10 +1,39 @@
+import { ApiProperty } from "@nestjs/swagger"
+
 export class UserDto {
+    @ApiProperty({
+        description: "User Id"
+    })
     id: string
+
+    @ApiProperty({
+        description: "User's First Name"
+    })
     firstName: string
+
+    @ApiProperty({
+        description: "User's Last Name"
+    })
     lastName: string
+
+    @ApiProperty({
+        description: "User's username"
+    })
     username: string
+
+    @ApiProperty({
+        description: "User's profile photo"
+    })
     profile?: string
+
+    @ApiProperty({
+        description: "User's email"
+    })
     email: string
+
+    @ApiProperty({
+        description: "User's creation date"
+    })
     created: Date
 
     constructor(properties: {
