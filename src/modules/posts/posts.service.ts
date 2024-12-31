@@ -32,8 +32,11 @@ export class PostsService {
         const [posts, total] = await this.postRepository.findAndCount({
             skip: limit * page,
             take: limit,
+            relations: ['place'],
             where: {
-                place
+                place: {
+                    id: place.id
+                }
             }
         })
 
@@ -43,7 +46,8 @@ export class PostsService {
             const photoUrl = await this.s3Service.getPresignedUrl(post.photo, 'post.jpg')
             return new PostDto({
                 id: post.id,
-                photo: photoUrl
+                photo: photoUrl,
+                placeId: post.place.id
             })
         }))
 

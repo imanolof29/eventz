@@ -11,12 +11,19 @@ export class PostDto {
     })
     photo: string
 
+    @ApiProperty({
+        description: "Place of post"
+    })
+    placeId: string
+
     constructor(properties: {
         id: string,
-        photo: string
+        photo: string,
+        placeId: string
     }) {
         this.id = properties.id
         this.photo = properties.photo
+        this.placeId = properties.placeId
     }
 
 }
