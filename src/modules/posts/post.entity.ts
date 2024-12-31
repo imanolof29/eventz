@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../users/user.entity";
 import { Place } from "../places/place.entity";
-import { PostLike } from "./post-like.entity";
+import { PostLike } from "../likes/post-like.entity";
 
 @Entity({ name: 'posts' })
 export class Post {

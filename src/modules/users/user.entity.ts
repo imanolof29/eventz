@@ -7,7 +7,7 @@ import { DeviceToken } from './deviceToken.entity'
 import { Notification } from '../notifications/notification.entity'
 import { Organization } from '../organizations/organization.entity'
 import { Post } from '../posts/post.entity'
-import { PostLike } from '../posts/post-like.entity'
+import { PostLike } from '../likes/post-like.entity'
 
 export enum UserRole {
     ADMIN = 'ADMIN',
