@@ -8,13 +8,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/modules/users/user.entity';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { Verification } from './verification.entity';
+import { EmailModule } from 'src/providers/email/email.module';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshStrategy],
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([User]),
+    EmailModule,
+    TypeOrmModule.forFeature([User, Verification]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
