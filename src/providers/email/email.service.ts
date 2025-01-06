@@ -7,7 +7,7 @@ type EmailTemplate = 'welcome' | 'reset-password' | 'verify-email' | 'purchase-c
 export interface EmailTemplateParams {
     'welcome': { name: string; email: string; date: Date };
     'reset-password': { name: string; resetLink: string };
-    'verify-email': { name: string; email: string };
+    'verify-email': { name: string, link: string };
     'purchase-confirmation': {
         name: string;
         email: string;

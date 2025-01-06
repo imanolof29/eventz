@@ -46,6 +46,9 @@ export class User {
     })
     role: UserRole
 
+    @Column({ default: false })
+    verified: boolean
+
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created: Date;
 
