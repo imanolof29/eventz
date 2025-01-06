@@ -11,6 +11,9 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuth2Client } from 'google-auth-library';
 import { EMAIL_ALREADY_EXISTS, EMAIL_DOES_NOT_EXIST, INCORRECT_PASSWORD, INVALID_PASSWORD, USER_NOT_ACTIVE, USER_NOT_FOUND, USERNAME_ALREADY_EXISTS } from 'src/errors/errors.constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { Verification } from './verification.entity';
+import { EmailService } from 'src/providers/email/email.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -18,9 +21,11 @@ export class AuthService {
     private googleClient: OAuth2Client
 
     constructor(
-        private configService: ConfigService,
-        @InjectRepository(User) private userRepository: Repository<User>,
-        private jwtService: JwtService
+        private readonly configService: ConfigService,
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(Verification) private readonly verificationRepository: Repository<Verification>,
+        private readonly jwtService: JwtService,
+        private readonly emailService: EmailService
     ) {
         this.googleClient = new OAuth2Client(
             this.configService.get('GOOGLE_CLIENT_ID')
@@ -128,6 +133,25 @@ export class AuthService {
         if (!isPasswordValid) throw new HttpException(INVALID_PASSWORD, HttpStatus.BAD_REQUEST)
         user.password = await passwordHash.cryptPassword(properties.dto.newPassword)
         await this.userRepository.save(user)
+    }
+
+    async createEmailVerificationToken(user: User): Promise<void> {
+        const token = crypto.randomBytes(16).toString('hex')
+        const emailVerification = await this.verificationRepository.create({
+            token,
+            user
+        })
+        await this.verificationRepository.save(emailVerification)
+        await this.emailService.sendMail(user.email, 'verify-email', { name: user.firstName, link: `localhost:3000/auth/verify-email?token=${emailVerification.token}` })
+    }
+
+    async verifyEmail(token: string): Promise<void> {
+        const verification = await this.verificationRepository.findOne({ where: { token }, relations: ['user'] })
+        if (!verification) throw new NotFoundException('TOKEN NOT FOUND')
+        const { user } = verification
+        user.verified = true
+        await this.userRepository.save(user)
+        await this.verificationRepository.delete(verification)
     }
 
 
