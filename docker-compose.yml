@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
   
   backend:
-    build: 
+    build:
       context: .
       dockerfile: dockerfile
     container_name: fiesta_backend
@@ -44,6 +44,9 @@ services:
       - "3000:3000"
     depends_on:
       - db
+    networks:
+      - fiesta_network
+    restart: unless-stopped
 
 networks:
   fiesta_network:
