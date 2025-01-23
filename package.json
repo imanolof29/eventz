@@ -16,6 +16,7 @@
     "test": "jest",
     "database:devbase": "ts-node-dev -r tsconfig-paths/register ./scripts/base.database.ts",
     "database:delete": "ts-node-dev -r tsconfig-paths/register ./scripts/delete.database.ts",
+    "database:seed": "ts-node ./db/seed.ts",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
