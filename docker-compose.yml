@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES: fiestas_db
+      POSTGRES_DB: fiestas_db
     ports:
       - "5432:5432"
     volumes:
@@ -21,17 +21,32 @@ services:
     container_name: fiesta_pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@gmail.com
-      PGADMIN_DEFAUL_PASSWORD: admin
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "3000:8080"
+      - "8080:8080"
     depends_on:
       - db
     networks:
       - fiesta_network
     restart: unless-stopped
   
-  networks:
-    fiesta_network:
-  
-  volumes:
-    postgres_data
+  backend:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    container_name: fiesta_backend
+    command: >
+      bash -c "
+        npm run database:seed;
+        npm run start;
+      "
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+networks:
+  fiesta_network:
+
+volumes:
+  postgres_data:
