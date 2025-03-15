@@ -1,73 +1,54 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Project Modules Readme
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Identity Module
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The Identity Module is responsible for managing user authentication, profiles, roles, and permissions within the system.
 
-## Description
+- **Authentication**: Handles login, registration, and JWT (JSON Web Token) generation for secure user authentication.
+- **Profile Management**: Allows users to manage their profiles including photos and personal information.
+- **Roles and Permissions**: Defines roles (e.g., admin, user) and permissions to control access and actions within the application.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Places Module
 
-## Installation
+The Places Module focuses on features related to geographic locations, user interactions with places, and associated content.
 
-```bash
-$ npm install
-```
+- **Place Catalog**: Provides a catalog of locations with details such as descriptions, addresses, and categories.
+- **Geospatial Search**: Enables users to search for places based on geographic coordinates or proximity.
+- **Comments and Ratings**: Allows users to leave comments and ratings on places.
+- **User Photos**: Allows users to upload and view photos related to places.
 
-## Running the app
+## Business Module
 
-```bash
-# development
-$ npm run start
+The Business Module is tailored for managing business-related information and interactions.
 
-# watch mode
-$ npm run start:dev
+- **Business Profiles**: Provides profiles for businesses including descriptions, contact information, and services offered.
+- **Business Information Management**: Allows businesses to manage their information such as operating hours, pricing, and updates.
+- **Business Dashboard**: Offers a dashboard interface for business owners to monitor performance metrics and manage their operations.
 
-# production mode
-$ npm run start:prod
-```
+## Events Module
 
-## Test
+The Events Module facilitates the creation, management, and promotion of events within the system.
 
-```bash
-# unit tests
-$ npm run test
+- **Event Creation and Management**: Enables users to create and manage events, including details such as dates, times, and locations.
+- **Promotions**: Supports promotional activities related to events such as discounts and special offers.
+- **Calendar and Scheduling**: Provides a calendar view for users to schedule and plan their events.
 
-# e2e tests
-$ npm run test:e2e
+## Ticketing Module
 
-# test coverage
-$ npm run test:cov
-```
+The Ticketing Module handles ticket sales, payment processing, and reservation management.
 
-## Support
+- **Ticket Sales**: Allows users to purchase tickets for events or services offered within the system.
+- **Payment Processing**: Facilitates secure processing of payments for ticket purchases.
+- **Reservation Management**: Manages reservations and bookings for events or services.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Analytics Module
 
-## Stay in touch
+The Analytics Module provides tools for gathering and analyzing business-related data and insights.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **Business Statistics**: Generates statistical data and metrics to track business performance.
+- **Administration Panel**: Offers an administrative interface for managing analytics settings and permissions.
+- **Reports and Insights**: Generates reports and provides insights based on the collected data.
 
-## License
+---
 
-Nest is [MIT licensed](LICENSE).
+This readme outlines the key functionalities and features of each module within the project, illustrating their respective roles and contributions to the overall system architecture.
