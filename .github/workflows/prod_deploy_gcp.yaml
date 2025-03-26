@@ -1,47 +1,53 @@
-name: Production deploy to GAE
-concurrency: production
-
-on:
-  push:
-    tags:
-      - 'prod-v*.*.*'
-
 jobs:
   deploy_to_gae_backend:
     name: Deploying to Google Cloud Backend
     runs-on: ubuntu-latest
 
     steps:
-      #Paso 1: Configurar Node.js y npm
-      - name: Setup Nodejs and npm
+      # Paso 1: Checkout del código
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Paso 2: Configurar Node.js y npm
+      - name: Setup Node.js and npm
         uses: actions/setup-node@v2
         with:
           node-version: '20'
 
-      #Paso 2: Configurar gcloud CLI
+      # Paso 3: Moverse al directorio correcto
+      - name: Change directory to project folder
+        run: cd event-spot
+
+      # Paso 4: Configurar gcloud CLI
       - name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
         with:
           project_id: ${{ secrets.PROD_GCP_PROJECT_ID }}
           credentials_json: ${{ secrets.PROD_GCP_CREDENTIALS }}
 
-      #Paso 3: Crear el archivo .env y escribir los secretos en el
-
+      # Paso 5: Crear el archivo .env y escribir los secretos en él
       - name: Create .env file
         run: |
+          cd event-spot
           echo "GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json" >> .env
-          echo "PORT=${{ secrets.PROD_PORT }}"
-          echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}"
-          echo "JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}"
+          echo "PORT=${{ secrets.PROD_PORT }}" >> .env
+          echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}" >> .env
 
-      #Paso 4: Instalar dependencias
+      # Paso 6: Instalar dependencias
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd event-spot
+          npm install
 
-      #Paso 5 Ejecutar el build
+      # Paso 7: Ejecutar el build
       - name: Build Project
-        run: nest build
+        run: |
+          cd event-spot
+          npm run build
 
-      #Paso 6: Deplegar a App Engine
+      # Paso 8: Desplegar a App Engine
       - name: Deploy to App Engine
-        run: gcloud app deploy app.yaml --quiet
+        run: |
+          cd event-spot
+          gcloud app deploy app.yaml --quiet
