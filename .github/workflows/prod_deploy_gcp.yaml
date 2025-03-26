@@ -18,14 +18,19 @@ jobs:
       - name: Change directory to project folder
         run: cd event-spot
 
-      # Paso 4: Configurar gcloud CLI
+      # Paso 4: Configurar gcloud CLI (instalarlo)
       - name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
         with:
           project_id: ${{ secrets.PROD_GCP_PROJECT_ID }}
+
+      # Paso 5: Autenticarse en Google Cloud
+      - name: Authenticate with Google Cloud
+        uses: 'google-github-actions/auth@v2'
+        with:
           credentials_json: ${{ secrets.PROD_GCP_CREDENTIALS }}
 
-      # Paso 5: Crear el archivo .env y escribir los secretos en él
+      # Paso 6: Crear el archivo .env y escribir los secretos en él
       - name: Create .env file
         run: |
           cd event-spot
@@ -34,19 +39,19 @@ jobs:
           echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" >> .env
           echo "JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}" >> .env
 
-      # Paso 6: Instalar dependencias
+      # Paso 7: Instalar dependencias
       - name: Install dependencies
         run: |
           cd event-spot
           npm install
 
-      # Paso 7: Ejecutar el build
+      # Paso 8: Ejecutar el build
       - name: Build Project
         run: |
           cd event-spot
           npm run build
 
-      # Paso 8: Desplegar a App Engine
+      # Paso 9: Desplegar a App Engine
       - name: Deploy to App Engine
         run: |
           cd event-spot
