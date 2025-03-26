@@ -1,3 +1,11 @@
+name: Production deploy to GAE
+concurrency: production
+
+on:
+  push:
+    tags:
+      - 'prod-v*.*.*'
+
 jobs:
   deploy_to_gae_backend:
     name: Deploying to Google Cloud Backend
