@@ -21,10 +21,11 @@ jobs:
       #Paso 2: Configurar gcloud CLI
       - name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          project_id: ${{ secrets.PROD_GCP_PROJECT_ID }}
+          credentials_json: ${{ secrets.PROD_GCP_CREDENTIALS }}
 
       #Paso 3: Crear el archivo .env y escribir los secretos en el
-      - name: Set up GCloud Service Key
-        run: echo "${{ secrets.PROD_GCLOUD_SERVICE_KEY }} | base 64 --decode | jq > gcloud-key.json"
 
       - name: Create .env file
         run: |
