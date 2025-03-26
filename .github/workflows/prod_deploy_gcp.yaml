@@ -12,55 +12,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Checkout del código
+      # Checkout the entire repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Paso 2: Configurar Node.js y npm
+      # Setup Node.js
       - name: Setup Node.js and npm
         uses: actions/setup-node@v2
         with:
           node-version: '20'
 
-      # Paso 3: Moverse al directorio correcto
-      - name: Change directory to project folder
-        run: cd event-spot
+      # Set working directory for all subsequent steps
+      - name: Set working directory
+        working-directory: ./event-spot
 
-      # Paso 4: Configurar gcloud CLI (instalarlo)
+      # Set up Cloud SDK
       - name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
         with:
           project_id: ${{ secrets.PROD_GCP_PROJECT_ID }}
 
-      # Paso 5: Autenticarse en Google Cloud
+      # Authenticate with Google Cloud
       - name: Authenticate with Google Cloud
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: ${{ secrets.PROD_GCP_CREDENTIALS }}
 
-      # Paso 6: Crear el archivo .env y escribir los secretos en él
+      # Create .env file
       - name: Create .env file
         run: |
-          cd event-spot
           echo "GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json" >> .env
           echo "PORT=${{ secrets.PROD_PORT }}" >> .env
           echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" >> .env
           echo "JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}" >> .env
 
-      # Paso 7: Instalar dependencias
+      # Install dependencies
       - name: Install dependencies
-        run: |
-          cd event-spot
-          npm install
+        run: npm install
 
-      # Paso 8: Ejecutar el build
+      # Build project
       - name: Build Project
-        run: |
-          cd event-spot
-          npm run build
+        run: npm run build
 
-      # Paso 9: Desplegar a App Engine
+      # Deploy to App Engine
       - name: Deploy to App Engine
-        run: |
-          cd event-spot
-          gcloud app deploy app.yaml --quiet
+        run: gcloud app deploy app.yaml --quiet
