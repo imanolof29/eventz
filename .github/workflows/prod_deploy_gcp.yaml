@@ -37,7 +37,6 @@ jobs:
       # Create .env file
       - name: Create .env file
         run: |
-          cd event-spot
           echo "GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json" >> .env
           echo "PORT=${{ secrets.PROD_PORT }}" >> .env
           echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" >> .env
@@ -45,18 +44,12 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: |
-          cd event-spot
-          npm install
+        run: npm install
 
       # Build project
       - name: Build Project
-        run: |
-          cd event-spot
-          npm run build
+        run: npm run build
 
       # Deploy to App Engine
       - name: Deploy to App Engine
-        run: |
-          cd event-spot
-          gcloud app deploy app.yaml --quiet
+        run: gcloud app deploy app.yaml --quiet
