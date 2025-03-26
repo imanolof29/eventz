@@ -32,8 +32,6 @@ jobs:
           echo "PORT=${{ secrets.PROD_PORT }}"
           echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}"
           echo "JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}"
-          echo "GOOGLE_CLIENT_ID=${{ secrets.PROD_GOOGLE_CLIENT_ID }}"
-          echo "CLIENT_SECRET=${{ secrets.PROD_CLIENT_SECRET }}"
 
       #Paso 4: Instalar dependencias
       - name: Install dependencies
