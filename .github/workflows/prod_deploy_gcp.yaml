@@ -1,0 +1,48 @@
+name: Production deploy to GAE
+concurrency: production
+
+on:
+  push:
+    tags:
+      - 'prod-v*.*.*'
+
+jobs:
+  deploy_to_gae_backend:
+    name: Deploying to Google Cloud Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      #Paso 1: Configurar Node.js y npm
+      - name: Setup Nodejs and npm
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      #Paso 2: Configurar gcloud CLI
+      - name: Set up Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      #Paso 3: Crear el archivo .env y escribir los secretos en el
+      - name: Set up GCloud Service Key
+        run: echo "${{ secrets.PROD_GCLOUD_SERVICE_KEY }} | base 64 --decode | jq > gcloud-key.json"
+
+      - name: Create .env file
+        run: |
+          echo "GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json" >> .env
+          echo "PORT=${{ secrets.PROD_PORT }}"
+          echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}"
+          echo "JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}"
+          echo "GOOGLE_CLIENT_ID=${{ secrets.PROD_GOOGLE_CLIENT_ID }}"
+          echo "CLIENT_SECRET=${{ secrets.PROD_CLIENT_SECRET }}"
+
+      #Paso 4: Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      #Paso 5 Ejecutar el build
+      - name: Build Project
+        run: nest build
+
+      #Paso 6: Deplegar a App Engine
+      - name: Deploy to App Engine
+        run: gcloud app deploy app.yaml --quiet
